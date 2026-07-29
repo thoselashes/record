@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { sortTags } from "./constants";
 
 const DRAFTS_KEY = "thoselashes-drafts";
 
@@ -38,7 +39,7 @@ const useStore = create((set, get) => ({
         email: appointment.email,
         timePaid: draft.timePaid || "",
         amount: draft.amount || 0,
-        tags: draft.tags || [],
+        tags: sortTags(draft.tags || []),
         customTags: draft.customTags || [],
       }),
     });

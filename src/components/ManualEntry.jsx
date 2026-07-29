@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import useStore from "../store";
+import { sortTags } from "../constants";
 import TAG_GROUPS from "../constants/tags.json";
 
 const SERVICES = ["Eyelash Extensions", "Touchup", "Mani/Pedi", "Lash Lift"];
@@ -32,7 +33,7 @@ export default function ManualEntry({ onClose }) {
         date: form.date,
         timeMinutes: h * 60 + m,
         amount: form.amount || 0,
-        tags: [...form.tags, ...form.customTags],
+        tags: sortTags([...form.tags, ...form.customTags]),
       });
       showToast("Record created");
       onClose();
