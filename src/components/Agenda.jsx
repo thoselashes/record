@@ -6,7 +6,7 @@ function firstName(name) {
   return name.split(/[\s-]/)[0];
 }
 
-export default function Agenda({ onSelect }) {
+export default function Agenda({ onSelect, todayTick }) {
   const { appointments } = useStore();
   const [dayIdx, setDayIdx] = useState(0);
 
@@ -30,7 +30,7 @@ export default function Agenda({ onSelect }) {
       const idx = dateList.indexOf(today);
       setDayIdx(idx >= 0 ? idx : dateList.length - 1);
     }
-  }, [dateList]);
+  }, [dateList, todayTick]);
 
   const currentDate = dateList[dayIdx];
   const apps = currentDate ? groups[currentDate] : [];
