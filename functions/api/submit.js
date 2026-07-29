@@ -17,7 +17,6 @@ export async function onRequestPost(context) {
     } = body;
 
     const VALUES = [
-      id,
       formatDate(date),
       formatTime(timeMinutes),
       service,
@@ -27,6 +26,7 @@ export async function onRequestPost(context) {
       timePaid,
       amount,
       [...tags, ...customTags].join(", "),
+      id,
     ];
 
     await fetch(
