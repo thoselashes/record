@@ -1,0 +1,12 @@
+node_modules/
+build/
+.wrangler/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+calendar.json
+seed-data.json
+seed-kv.json
+seed-sample.json
+seed.js
+implementation_plan.md
