@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import useStore from "../store";
 import { minutesToTime, formatDate } from "../constants";
 
@@ -17,96 +17,31 @@ function groupByDate(list) {
 
 export default function Agenda({ onSelect }) {
   const { appointments } = useStore();
-  const [showHistory, setShowHistory] = useState(false);
-  const [historyIdx, setHistoryIdx] = useState(0);
 
   const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
-  const { todayUpcoming, past } = useMemo(() => {
-    const today = [], past = [];
-    for (const a of appointments) {
-      if (a.date >= todayStr) today.push(a);
-      else past.push(a);
-    }
-    return { todayUpcoming: groupByDate(today), past: groupByDate(past) };
+  const groups = useMemo(() => {
+    const active = appointments.filter((a) => !a.submitted);
+    const upcoming = active.filter((a) => a.date >= todayStr);
+    return groupByDate(upcoming);
   }, [appointments, todayStr]);
-
-  const totalHistoryDays = past.length;
-  const currentDay = past.at(-1 - historyIdx); // [date, apps[]] — most recent first
-  const canPrev = historyIdx < totalHistoryDays - 1;
-  const canNext = historyIdx > 0;
 
   return (
     <section>
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-lg font-medium text-gray-700">
-          {showHistory ? "History" : "Today's Appointments"}
-        </h2>
-        {totalHistoryDays > 0 && (
-          <button
-            type="button"
-            onClick={() => {
-              setShowHistory(!showHistory);
-              if (showHistory) setHistoryIdx(0);
-            }}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-          >
-            {showHistory ? "Back to Today" : `Show History`}
-          </button>
-        )}
-      </div>
+      <h2 className="text-lg font-medium text-gray-700 mb-3">Today's Appointments</h2>
 
-      {/* Main view: today + upcoming */}
-      {!showHistory && (
-        <>
-          {!todayUpcoming.length && (
-            <p className="text-gray-400 text-sm">No active appointments.</p>
-          )}
-          {todayUpcoming.map(([date, apps]) => (
-            <DateGroup
-              key={date}
-              label={date === todayStr ? "Today" : formatDate(date)}
-              apps={apps}
-              onSelect={onSelect}
-            />
-          ))}
-        </>
+      {!groups.length && (
+        <p className="text-gray-400 text-sm">No active appointments.</p>
       )}
 
-      {/* History: one day at a time with navigation */}
-      {showHistory && (
-        <>
-          {!currentDay && (
-            <p className="text-gray-400 text-sm">No historical appointments.</p>
-          )}
-          {currentDay && (
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <button
-                  type="button"
-                  onClick={() => setHistoryIdx(historyIdx + 1)}
-                  disabled={!canPrev}
-                  className="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
-                >
-                  ← Prev Day
-                </button>
-                <span className="text-sm font-semibold text-gray-700">
-                  {formatDate(currentDay[0])}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setHistoryIdx(historyIdx - 1)}
-                  disabled={!canNext}
-                  className="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
-                >
-                  Next Day →
-                </button>
-              </div>
-              <AppointmentList apps={currentDay[1]} onSelect={onSelect} />
-            </div>
-          )}
-        </>
-      )}
+      {groups.map(([date, apps]) => (
+        <DateGroup
+          key={date}
+          label={date === todayStr ? "Today" : formatDate(date)}
+          apps={apps}
+          onSelect={onSelect}
+        />
+      ))}
     </section>
   );
 }
@@ -143,14 +78,6 @@ function AppointmentList({ apps, onSelect }) {
           <div className="text-sm text-gray-600 mt-0.5">
             {app.service}
           </div>
-          {app.submitted && app.amount > 0 && (
-            <div className="text-xs font-medium text-green-600 mt-1">
-              Paid ${Number(app.amount).toFixed(2)}
-            </div>
-          )}
-          {app.submitted && !(app.amount > 0) && (
-            <div className="text-xs text-gray-400 mt-1">Submitted</div>
-          )}
         </button>
       ))}
     </div>

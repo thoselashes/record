@@ -48,7 +48,7 @@ export default function App() {
       </header>
       <main className="max-w-2xl mx-auto px-4 py-4">
         {tab === "agenda" && <Agenda onSelect={setSelectedId} />}
-        {tab === "records" && <Records />}
+        {tab === "records" && <Records onSelect={setSelectedId} />}
         <Detail selectedId={selectedId} onClose={() => setSelectedId(null)} />
       </main>
     </div>

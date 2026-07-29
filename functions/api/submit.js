@@ -17,6 +17,7 @@ export async function onRequestPost(context) {
     } = body;
 
     const VALUES = [
+      id,
       formatDate(date),
       formatTime(timeMinutes),
       service,
@@ -40,7 +41,15 @@ export async function onRequestPost(context) {
     const agenda = await context.env.APPOINTMENTS_KV.get("agenda");
     const appointments = agenda ? JSON.parse(agenda) : [];
     const updated = appointments.map((a) =>
-      a.id === id ? { ...a, submitted: true } : a
+      a.id === id
+        ? {
+            ...a,
+            submitted: true,
+            submittedAt: new Date().toISOString(),
+            amount: Number(amount || 0),
+            tags: [...(tags || []), ...(customTags || [])],
+          }
+        : a
     );
 
     await context.env.APPOINTMENTS_KV.put("agenda", JSON.stringify(updated));

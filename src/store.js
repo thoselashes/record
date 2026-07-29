@@ -1,12 +1,10 @@
 import { create } from "zustand";
 
 const DRAFTS_KEY = "thoselashes-drafts";
-const RECORDS_KEY = "thoselashes-records";
 
 const useStore = create((set, get) => ({
   appointments: [],
   drafts: loadItem(DRAFTS_KEY, {}),
-  records: loadItem(RECORDS_KEY, []),
 
   fetchAppointments: async () => {
     try {
@@ -20,7 +18,7 @@ const useStore = create((set, get) => ({
   },
 
   submitAppointment: async (id) => {
-    const { appointments, drafts, records } = get();
+    const { appointments, drafts } = get();
     const appointment = appointments.find((a) => a.id === id);
     if (!appointment) return;
 
@@ -46,27 +44,12 @@ const useStore = create((set, get) => ({
 
     if (!res.ok) throw new Error("Submission failed");
 
-    const record = {
-      id: appointment.id,
-      date: appointment.date,
-      timeMinutes: appointment.timeMinutes,
-      service: appointment.service,
-      customerName: appointment.customerName,
-      amount: Number(draft.amount || 0),
-      tags: [...(draft.tags || []), ...(draft.customTags || [])],
-      submittedAt: new Date().toISOString(),
-    };
-
-    const updatedRecords = [record, ...records];
-    const updatedAppointments = appointments.map((a) =>
-      a.id === id ? { ...a, submitted: true } : a
-    );
     const updatedDrafts = { ...drafts };
     delete updatedDrafts[id];
-
-    saveItem(RECORDS_KEY, updatedRecords);
     saveItem(DRAFTS_KEY, updatedDrafts);
-    set({ appointments: updatedAppointments, drafts: updatedDrafts, records: updatedRecords });
+    set({ drafts: updatedDrafts });
+
+    await get().fetchAppointments();
   },
 
   updateDraft: (id, field, value) => {

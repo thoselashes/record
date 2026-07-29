@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import useStore from "../store";
 import QRCode from "./QRCode";
 import { minutesToTime } from "../constants";
@@ -10,9 +10,19 @@ export default function Detail({ selectedId, onClose }) {
   const appointment = appointments.find((a) => a.id === selectedId);
   const draft = selectedId ? drafts[selectedId] || {} : {};
 
+  // Pre-populate draft for submitted records
+  useEffect(() => {
+    if (selectedId && appointment?.submitted && !drafts[selectedId]) {
+      updateDraft(selectedId, "amount", String(appointment.amount || ""));
+      updateDraft(selectedId, "tags", appointment.tags || []);
+      updateDraft(selectedId, "customTags", []);
+    }
+  }, [selectedId]);
+
   if (!appointment) return null;
 
   const tags = [...(draft.tags || []), ...(draft.customTags || [])];
+  const isSubmitted = appointment.submitted;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-start sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
@@ -31,6 +41,12 @@ export default function Detail({ selectedId, onClose }) {
       <div className="text-xs text-gray-400 italic mb-3">
         {minutesToTime(appointment.timeMinutes)} — {appointment.service}
       </div>
+
+      {isSubmitted && (
+        <div className="text-xs text-green-600 font-medium mb-3">
+          Previously submitted
+        </div>
+      )}
 
       {/* QR Section */}
       <div className="mb-4">
@@ -147,7 +163,7 @@ export default function Detail({ selectedId, onClose }) {
           }}
           className="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 text-sm font-medium transition"
         >
-          Submit
+          {isSubmitted ? "Update" : "Submit"}
         </button>
         <button
           onClick={onClose}
