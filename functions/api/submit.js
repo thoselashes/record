@@ -34,7 +34,7 @@ export async function onRequestPost(context) {
     };
 
     const gsRes = await fetch(
-      "https://script.google.com/macros/s/AKfycbweses68SXveazp6yWgoEsNCYUrXZ0XN7Y22xuAJ8Bq53y56FDs9GM6VyjnH007RQ4e/exec",
+      "https://script.google.com/macros/s/AKfycbzGcvuD5_9JrIlizn6jALo96Iy3nTRzRDg3cT_d5jfd1KlaFnP4SpWMCqsZftKf-CRrIg/exec",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
