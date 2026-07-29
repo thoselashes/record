@@ -40,7 +40,7 @@ export async function onRequestPost(context) {
     );
 
     const gsBody = await gsRes.text();
-    let gsError = null;
+    let gsOk = false, gsError = null;
     try { const j = JSON.parse(gsBody); gsOk = j.success === true; gsError = j.error; } catch {}
     if (!gsOk) {
       console.error("Google Sheets error:", gsBody);
