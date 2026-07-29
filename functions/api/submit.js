@@ -16,27 +16,35 @@ export async function onRequestPost(context) {
       customTags,
     } = body;
 
-    const VALUES = [
-      formatDate(date),
-      formatTime(timeMinutes),
-      service,
-      customerName,
-      mobileNumber,
-      email,
-      timePaid,
-      amount,
-      [...tags, ...customTags].join(", "),
-      id,
-    ];
+    const allTags = [...(tags || []), ...(customTags || [])];
 
-    await fetch(
+    const payload = {
+      id,
+      submittedAt: new Date().toISOString(),
+      date: formatDate(date),
+      time: formatTime(timeMinutes),
+      customerName,
+      service,
+      amount: Number(amount || 0),
+      tags: allTags,
+      mobileNumber,
+    };
+
+    const gsRes = await fetch(
       "https://script.google.com/macros/s/AKfycbwoOCGX-JZ6gN9bXW9ibTBZqB6m18cAbqU5pYWw-UBNc20Dg1Mli-u3ogTxM8EeC0J11A/exec",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ values: VALUES }),
+        body: JSON.stringify(payload),
       }
     );
+
+    const gsBody = await gsRes.text();
+    let gsOk = false;
+    try { const j = JSON.parse(gsBody); gsOk = j.success === true; } catch {}
+    if (!gsOk) {
+      console.error("Google Sheets error:", gsBody);
+    }
 
     const agenda = await context.env.APPOINTMENTS_KV.get("agenda");
     const appointments = agenda ? JSON.parse(agenda) : [];
@@ -45,16 +53,16 @@ export async function onRequestPost(context) {
         ? {
             ...a,
             submitted: true,
-            submittedAt: new Date().toISOString(),
-            amount: Number(amount || 0),
-            tags: [...(tags || []), ...(customTags || [])],
+            submittedAt: payload.submittedAt,
+            amount: payload.amount,
+            tags: allTags,
           }
         : a
     );
 
     await context.env.APPOINTMENTS_KV.put("agenda", JSON.stringify(updated));
 
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ success: true, gsOk }), {
       headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
