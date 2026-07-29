@@ -40,8 +40,8 @@ export async function onRequestPost(context) {
     );
 
     const gsBody = await gsRes.text();
-    let gsOk = false;
-    try { const j = JSON.parse(gsBody); gsOk = j.success === true; } catch {}
+    let gsError = null;
+    try { const j = JSON.parse(gsBody); gsOk = j.success === true; gsError = j.error; } catch {}
     if (!gsOk) {
       console.error("Google Sheets error:", gsBody);
     }
@@ -62,7 +62,7 @@ export async function onRequestPost(context) {
 
     await context.env.APPOINTMENTS_KV.put("agenda", JSON.stringify(updated));
 
-    return new Response(JSON.stringify({ success: true, gsOk }), {
+    return new Response(JSON.stringify({ success: true, gsOk, gsError }), {
       headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
