@@ -17,6 +17,9 @@ export async function onRequestPost(context) {
     } = body;
 
     const allTags = [...(tags || []), ...(customTags || [])];
+    const fullNumber = mobileNumber && !mobileNumber.startsWith("+")
+      ? "+65" + mobileNumber
+      : mobileNumber || "";
 
     const payload = {
       id,
@@ -27,11 +30,11 @@ export async function onRequestPost(context) {
       service,
       amount: Number(amount || 0),
       tags: allTags,
-      mobileNumber,
+      mobileNumber: fullNumber,
     };
 
     const gsRes = await fetch(
-      "https://script.google.com/macros/s/AKfycbwrY1gUbi1n5dsJle7jfaZ-Pf6ZTd7ROZe2j7IpsoagmgqBPs2fWfK30oL-HNhJ38jYJQ/exec",
+      "https://script.google.com/macros/s/AKfycbwQGOqXF1wKFo-3qLZ6ll3wPeE7VlSTlzKUvMUqpwP5kLZ0egcHMlMDZwFEq6WeIVF17w/exec",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -23,7 +23,7 @@ export async function onRequestDelete(context) {
 
     // Fire-and-forget delete from Google Sheets
     fetch(
-      "https://script.google.com/macros/s/AKfycbwrY1gUbi1n5dsJle7jfaZ-Pf6ZTd7ROZe2j7IpsoagmgqBPs2fWfK30oL-HNhJ38jYJQ/exec",
+      "https://script.google.com/macros/s/AKfycbwQGOqXF1wKFo-3qLZ6ll3wPeE7VlSTlzKUvMUqpwP5kLZ0egcHMlMDZwFEq6WeIVF17w/exec",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
