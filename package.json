@@ -1,0 +1,24 @@
+{
+  "name": "thoselashes-admin",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "dev:functions": "npx wrangler pages dev ./build --port=8787 --kv=APPOINTMENTS_KV --no-bundle",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy": "npx wrangler pages deploy build"
+  },
+  "dependencies": {
+    "qrcode.react": "^4.2.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@vitejs/plugin-react": "^6.0.4",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.1.5",
+    "wrangler": "^4.114.0"
+  }
+}

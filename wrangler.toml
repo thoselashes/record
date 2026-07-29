@@ -1,0 +1,10 @@
+name = "thoselashes-admin"
+compatibility_date = "2024-09-01"
+pages_build_output_dir = "./build"
+
+[vars]
+ENV = "development"
+
+[[kv_namespaces]]
+binding = "APPOINTMENTS_KV"
+id = "APPOINTMENTS_KV"
