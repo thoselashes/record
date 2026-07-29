@@ -1,0 +1,161 @@
+import React, { useState } from "react";
+import useStore from "../store";
+import TAG_GROUPS from "../constants/tags.json";
+
+const SERVICES = ["Eyelash Extensions", "Touchup", "Mani/Pedi", "Lash Lift"];
+
+export default function ManualEntry({ onClose }) {
+  const { createRecord, showToast } = useStore();
+  const [form, setForm] = useState({
+    customerName: "",
+    mobileNumber: "",
+    service: SERVICES[0],
+    date: new Date().toISOString().slice(0, 10),
+    time: "09:00",
+    amount: "",
+    tags: [],
+    customTags: [],
+    customTag: "",
+  });
+
+  const handleSubmit = async () => {
+    if (!form.customerName.trim()) {
+      showToast("Customer name is required");
+      return;
+    }
+    const [h, m] = form.time.split(":").map(Number);
+    try {
+      await createRecord({
+        customerName: form.customerName.trim(),
+        mobileNumber: form.mobileNumber.trim(),
+        service: form.service,
+        date: form.date,
+        timeMinutes: h * 60 + m,
+        amount: form.amount || 0,
+        tags: [...form.tags, ...form.customTags],
+      });
+      showToast("Record created");
+      onClose();
+    } catch {
+      showToast("Failed to create record");
+    }
+  };
+
+  const toggleTag = (tag) => {
+    setForm((f) => ({
+      ...f,
+      tags: f.tags.includes(tag)
+        ? f.tags.filter((t) => t !== tag)
+        : [...f.tags, tag],
+    }));
+  };
+
+  const addCustomTag = () => {
+    const t = form.customTag.trim();
+    if (t) setForm((f) => ({ ...f, customTags: [...f.customTags, t], customTag: "" }));
+  };
+
+  const allTags = [...form.tags, ...form.customTags];
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/40 flex items-start sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
+      <div className="bg-white w-full sm:max-w-md sm:rounded-xl rounded-t-2xl max-h-[90vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="p-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="font-medium text-gray-900">New Record</h2>
+            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-sm">Close</button>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name *</label>
+            <input type="text" value={form.customerName}
+              onChange={(e) => setForm({ ...form, customerName: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="e.g. Jane Doe" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
+            <input type="tel" value={form.mobileNumber}
+              onChange={(e) => setForm({ ...form, mobileNumber: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="+65 9123 4567" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Service</label>
+            <select value={form.service}
+              onChange={(e) => setForm({ ...form, service: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+              {SERVICES.map((s) => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+              <input type="date" value={form.date}
+                onChange={(e) => setForm({ ...form, date: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+              <input type="time" value={form.time}
+                onChange={(e) => setForm({ ...form, time: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Amount $</label>
+            <input type="number" step="0.01" min="0" value={form.amount}
+              onChange={(e) => setForm({ ...form, amount: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              placeholder="0.00" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+            {Object.entries(TAG_GROUPS).map(([groupId, groupTags]) =>
+              groupTags.length > 0 ? (
+                <div key={groupId} className="flex flex-wrap gap-1.5 mb-1">
+                  {groupTags.map((tag) => (
+                    <button key={tag} type="button" onClick={() => toggleTag(tag)}
+                      className={`px-2.5 py-1 rounded-full text-xs font-medium border transition ${
+                        form.tags.includes(tag)
+                          ? groupId <= "2" ? "bg-blue-100 border-blue-300 text-blue-800" : "bg-purple-100 border-purple-300 text-purple-800"
+                          : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"
+                      }`}>{tag}</button>
+                  ))}
+                </div>
+              ) : <div key={groupId} className="mb-4" />
+            )}
+            <div className="flex gap-2 pt-2">
+              <input type="text" value={form.customTag}
+                onChange={(e) => setForm({ ...form, customTag: e.target.value })}
+                onKeyDown={(e) => { if (e.key === "Enter") addCustomTag(); }}
+                placeholder="Add custom tag..."
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+              <button type="button" onClick={addCustomTag}
+                className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition">+</button>
+            </div>
+            {allTags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {allTags.map((tag) => (
+                  <span key={tag} className="px-2 py-0.5 bg-gray-100 rounded-full text-xs text-gray-600">{tag}</span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-3 pt-3 border-t border-gray-100">
+            <button onClick={handleSubmit}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 text-sm font-medium transition">Submit</button>
+            <button onClick={onClose}
+              className="flex-1 bg-white hover:bg-gray-50 text-gray-700 rounded-lg py-2 text-sm font-medium border border-gray-200 transition">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

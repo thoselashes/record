@@ -59,6 +59,16 @@ const useStore = create((set, get) => ({
     await get().fetchAppointments();
   },
 
+  createRecord: async (data) => {
+    const res = await fetch("/api/records", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to create record");
+    await get().fetchAppointments();
+  },
+
   updateDraft: (id, field, value) => {
     const drafts = { ...get().drafts, [id]: { ...get().drafts[id], [field]: value } };
     saveItem(DRAFTS_KEY, drafts);

@@ -1,9 +1,11 @@
 import React, { useMemo, useState } from "react";
 import useStore from "../store";
 import { minutesToTime, formatDate as fmt } from "../constants";
+import ManualEntry from "./ManualEntry";
 
 export default function Records({ onSelect }) {
   const { appointments, showToast } = useStore();
+  const [showEntry, setShowEntry] = useState(false);
   const [deleting, setDeleting] = useState(null);
 
   const sorted = useMemo(
@@ -36,7 +38,16 @@ export default function Records({ onSelect }) {
 
   return (
     <section>
-      <h2 className="text-lg font-medium text-gray-700 mb-4">Records</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-medium text-gray-700">Records</h2>
+        <button
+          type="button"
+          onClick={() => setShowEntry(true)}
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-600 text-white text-lg font-medium hover:bg-blue-700 transition"
+        >
+          +
+        </button>
+      </div>
 
       {sorted.length === 0 && (
         <p className="text-gray-400 text-sm">No submitted records yet.</p>
@@ -105,9 +116,7 @@ export default function Records({ onSelect }) {
               {r.tags?.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-1.5">
                   {r.tags.map((t) => (
-                    <span key={t} className="px-1.5 py-0.5 bg-gray-100 rounded text-xs text-gray-600">
-                      {t}
-                    </span>
+                    <span key={t} className="px-1.5 py-0.5 bg-gray-100 rounded text-xs text-gray-600">{t}</span>
                   ))}
                 </div>
               )}
@@ -122,6 +131,8 @@ export default function Records({ onSelect }) {
           ))}
         </div>
       )}
+
+      {showEntry && <ManualEntry onClose={() => setShowEntry(false)} />}
     </section>
   );
 }

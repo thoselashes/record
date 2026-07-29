@@ -8,7 +8,6 @@ export default function App() {
   const { fetchAppointments, toast, clearToast } = useStore();
   const [selectedId, setSelectedId] = useState(null);
   const [tab, setTab] = useState("agenda");
-  const [todayTick, setTodayTick] = useState(0);
 
   useEffect(() => {
     fetchAppointments();
@@ -28,15 +27,6 @@ export default function App() {
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-semibold text-gray-900">Thoselashes</h1>
             <nav className="flex gap-1">
-              {tab === "agenda" && (
-                <button
-                  type="button"
-                  onClick={() => setTodayTick((t) => t + 1)}
-                  className="px-3 py-1.5 text-sm font-medium rounded-lg text-blue-600 hover:bg-blue-50 transition"
-                >
-                  Today
-                </button>
-              )}
               <button
                 type="button"
                 onClick={() => setTab("agenda")}
@@ -64,7 +54,7 @@ export default function App() {
         </div>
       </header>
       <main className="max-w-2xl mx-auto px-4 py-4">
-        {tab === "agenda" && <Agenda onSelect={setSelectedId} todayTick={todayTick} />}
+        {tab === "agenda" && <Agenda onSelect={setSelectedId} />}
         {tab === "records" && <Records onSelect={setSelectedId} />}
         <Detail selectedId={selectedId} onClose={() => setSelectedId(null)} />
       </main>
