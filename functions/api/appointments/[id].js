@@ -22,6 +22,7 @@ export async function onRequestDelete(context) {
     await context.env.APPOINTMENTS_KV.put("agenda", JSON.stringify(updated));
 
     // Delete from Google Sheets
+    let gsOk = false;
     try {
       const gsRes = await fetch(
         "https://script.google.com/macros/s/AKfycbzGcvuD5_9JrIlizn6jALo96Iy3nTRzRDg3cT_d5jfd1KlaFnP4SpWMCqsZftKf-CRrIg/exec",
@@ -32,12 +33,13 @@ export async function onRequestDelete(context) {
         }
       );
       const gsText = await gsRes.text();
-      console.log("GS delete response:", gsText);
+      const gsJson = JSON.parse(gsText);
+      gsOk = gsJson.success === true;
     } catch (e) {
       console.error("GS delete failed:", e);
     }
 
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ success: true, gsOk }), {
       headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
