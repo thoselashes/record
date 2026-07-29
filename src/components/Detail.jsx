@@ -161,8 +161,9 @@ export default function Detail({ selectedId, onClose }) {
         <button
           onClick={() => {
             onClose();
-            showToast(isSubmitted ? "Updated" : "Submitted");
-            submitAppointment(appointment.id).catch(() => showToast("Submission failed"));
+            submitAppointment(appointment.id)
+              .then(() => showToast(isSubmitted ? "Updated" : "Submitted"))
+              .catch(() => showToast("Submission failed"));
           }}
           className="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 text-sm font-medium transition"
         >
