@@ -76,7 +76,7 @@ export default function Records({ onSelect }) {
                 >
                   <td className="py-2.5 pr-3 text-gray-700 whitespace-nowrap">{fmt(r.date)}</td>
                   <td className="py-2.5 pr-3 text-gray-700 whitespace-nowrap">{minutesToTime(r.timeMinutes)}</td>
-                  <td className="py-2.5 pr-3 text-gray-900 font-medium whitespace-nowrap">{r.customerName}</td>
+                  <td className="py-2.5 pr-3 text-gray-900 font-display font-medium whitespace-nowrap">{r.customerName}</td>
                   <td className="py-2.5 pr-3 text-gray-600">{r.service}</td>
                   <td className="py-2.5 pr-3 text-gray-700 text-right whitespace-nowrap">${Number(r.amount).toFixed(2)}</td>
                   <td className="py-2.5 text-gray-500 max-w-[200px] truncate">
@@ -107,7 +107,7 @@ export default function Records({ onSelect }) {
               className="bg-white border border-gray-200 rounded-lg px-4 py-3 cursor-pointer hover:border-gray-300 transition"
             >
               <div className="flex justify-between items-start mb-1">
-                <span className="text-sm font-medium text-gray-900">{r.customerName}</span>
+                <span className="text-sm font-display font-medium text-gray-900">{r.customerName}</span>
                 <span className="text-sm text-gray-600 font-medium">${Number(r.amount).toFixed(2)}</span>
               </div>
               <div className="text-xs text-gray-500 mb-1">

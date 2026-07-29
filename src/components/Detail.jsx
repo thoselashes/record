@@ -30,7 +30,7 @@ export default function Detail({ selectedId, onClose }) {
       <div className="bg-white w-full sm:max-w-[560px] sm:rounded-xl rounded-2xl shadow-2xl m-4 mb-8" onClick={(e) => e.stopPropagation()}>
       <section className="p-4">
       <div className="flex items-center justify-between">
-        <h2 className="font-medium text-gray-900">{appointment.customerName}</h2>
+        <h2 className="font-display font-medium text-gray-900">{appointment.customerName}</h2>
         <button
           onClick={onClose}
           className="text-gray-400 hover:text-gray-600 text-sm"

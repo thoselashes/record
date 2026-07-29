@@ -81,7 +81,7 @@ function AppointmentList({ apps, onSelect }) {
           className="w-full text-left bg-white rounded-lg border border-gray-200 px-4 py-3 hover:border-gray-300 hover:shadow-sm transition cursor-pointer"
         >
           <div className="flex justify-between items-center">
-            <span className="font-medium text-gray-900 truncate mr-2">
+            <span className="font-display font-medium text-gray-900 truncate mr-2">
               {firstName(app.customerName)}
             </span>
             <span className="text-sm text-gray-500 shrink-0">
