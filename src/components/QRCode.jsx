@@ -2,8 +2,8 @@ import React from "react";
 import { buildPayNowPayload } from "../utils/paynow";
 import { QRCodeCanvas } from "qrcode.react";
 
-export default function QRCode({ amount, name, phone, service }) {
-  const payload = buildPayNowPayload({ name, phone, service, amount });
+export default function QRCode({ amount, name, phone, service, id }) {
+  const payload = buildPayNowPayload({ name, phone, service, amount, id });
   const fgColor = amount > 0 ? "#000000" : "#4B5563";
 
   return (

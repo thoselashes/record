@@ -69,6 +69,7 @@ export default function Detail({ selectedId, onClose }) {
             name={appointment.customerName}
             phone={appointment.mobileNumber}
             service={appointment.service}
+            id={appointment.id}
           />
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import useStore from "../store";
 import { minutesToTime, formatDate } from "../constants";
 
@@ -8,133 +8,66 @@ function firstName(name) {
 
 export default function Agenda({ onSelect }) {
   const { appointments } = useStore();
-  const [showHistory, setShowHistory] = useState(false);
-  const [historyIdx, setHistoryIdx] = useState(0);
+  const [dayIdx, setDayIdx] = useState(0);
 
-  const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
-
-  const { todayUpcoming, historyDays } = useMemo(() => {
-    const today = [];
-
+  const { dateList, groups } = useMemo(() => {
+    const map = {};
     for (const a of appointments) {
-      if (!a.submitted && a.date >= todayStr) {
-        today.push(a);
-      }
+      if (!map[a.date]) map[a.date] = [];
+      map[a.date].push(a);
     }
-
-    // Build history: submitted today + all past dates
-    const histMap = {};
-    for (const a of appointments) {
-      if (a.submitted || a.date < todayStr) {
-        if (!histMap[a.date]) histMap[a.date] = [];
-        histMap[a.date].push(a);
-      }
+    const dates = Object.keys(map).sort();
+    const sorted = {};
+    for (const [date, apps] of Object.entries(map)) {
+      sorted[date] = [...apps].sort((a, b) => a.timeMinutes - b.timeMinutes);
     }
+    return { dateList: dates, groups: sorted };
+  }, [appointments]);
 
-    // Sort history dates newest first
-    const historyDays = Object.entries(histMap)
-      .sort(([a], [b]) => b.localeCompare(a))
-      .map(([date, apps]) => [date, [...apps].sort((a, b) => a.timeMinutes - b.timeMinutes)]);
+  useEffect(() => {
+    if (dateList.length) {
+      const today = new Date().toISOString().slice(0, 10);
+      const idx = dateList.indexOf(today);
+      setDayIdx(idx >= 0 ? idx : dateList.length - 1);
+    }
+  }, [dateList]);
 
-    return {
-      todayUpcoming: (() => {
-        const map = {};
-        for (const a of today) {
-          if (!map[a.date]) map[a.date] = [];
-          map[a.date].push(a);
-        }
-        return Object.entries(map).sort(([a], [b]) => a.localeCompare(b));
-      })(),
-      historyDays,
-    };
-  }, [appointments, todayStr]);
-
-  const currentDay = historyDays[historyIdx];
-  const canPrev = historyIdx < historyDays.length - 1;
-  const canNext = historyIdx > 0;
+  const currentDate = dateList[dayIdx];
+  const apps = currentDate ? groups[currentDate] : [];
 
   return (
     <section>
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-lg font-medium text-gray-700">
-          {showHistory ? "History" : "Today's Appointments"}
-        </h2>
-        {historyDays.length > 0 && (
-          <button
-            type="button"
-            onClick={() => {
-              setShowHistory(!showHistory);
-              if (showHistory) setHistoryIdx(0);
-            }}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-          >
-            {showHistory ? "Back to Today" : "Show History"}
-          </button>
-        )}
-      </div>
-
-      {!showHistory && (
-        <>
-          {!todayUpcoming.length && (
-            <p className="text-gray-400 text-sm">No active appointments.</p>
-          )}
-          {todayUpcoming.map(([date, apps]) => (
-            <DateGroup
-              key={date}
-              label={date === todayStr ? "Today" : formatDate(date)}
-              apps={apps}
-              onSelect={onSelect}
-            />
-          ))}
-        </>
+      {dateList.length === 0 && (
+        <p className="text-gray-400 text-sm">No appointments.</p>
       )}
 
-      {showHistory && (
-        <>
-          {!currentDay && (
-            <p className="text-gray-400 text-sm">No historical appointments.</p>
-          )}
-          {currentDay && (
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <button
-                  type="button"
-                  onClick={() => setHistoryIdx(historyIdx + 1)}
-                  disabled={!canPrev}
-                  className="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
-                >
-                  ← Prev Day
-                </button>
-                <span className="text-sm font-semibold text-gray-700">
-                  {currentDay[0] === todayStr ? "Today" : formatDate(currentDay[0])}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setHistoryIdx(historyIdx - 1)}
-                  disabled={!canNext}
-                  className="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
-                >
-                  Next Day →
-                </button>
-              </div>
-              <AppointmentList apps={currentDay[1]} onSelect={onSelect} />
-            </div>
-          )}
-        </>
+      {currentDate && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <button
+              type="button"
+              onClick={() => setDayIdx(dayIdx - 1)}
+              disabled={dayIdx <= 0}
+              className="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
+            >
+              ← Prev
+            </button>
+            <span className="text-sm font-semibold text-gray-700">
+              {formatDate(currentDate)}
+            </span>
+            <button
+              type="button"
+              onClick={() => setDayIdx(dayIdx + 1)}
+              disabled={dayIdx >= dateList.length - 1}
+              className="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
+            >
+              Next →
+            </button>
+          </div>
+          <AppointmentList apps={apps} onSelect={onSelect} />
+        </div>
       )}
     </section>
-  );
-}
-
-function DateGroup({ label, apps, onSelect }) {
-  const sorted = [...apps].sort((a, b) => a.timeMinutes - b.timeMinutes);
-  return (
-    <div className="mb-6">
-      <h3 className={`text-sm font-medium mb-2 ${label === "Today" ? "text-blue-600" : "text-gray-500"}`}>
-        {label}
-      </h3>
-      <AppointmentList apps={sorted} onSelect={onSelect} />
-    </div>
   );
 }
 

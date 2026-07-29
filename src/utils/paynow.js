@@ -20,46 +20,41 @@ function emv(id, value) {
   return id + String(value.length).padStart(2, "0") + value;
 }
 
-// Build the nested Merchant Account Info (EMVCo field 26) for PayNow.
-// Always pays to the salon's fixed PayNow mobile number.
 function buildMerchantAccountInfo(editable) {
   const sub = [
-    emv("00", "SG.PAYNOW"),            // GUID
-    emv("01", "0"),                    // Proxy type: 0 = mobile
-    emv("02", "+6581802828"),          // Proxy value: +65 + salon's PayNow mobile
-    emv("03", editable ? "1" : "0"),   // Editable: 1 = amount editable
+    emv("00", "SG.PAYNOW"),
+    emv("01", "0"),
+    emv("02", "+6581802828"),
+    emv("03", editable ? "1" : "0"),
   ];
   return emv("26", sub.join(""));
 }
 
-// Build the nested Additional Data (EMVCo field 62) with a bill number.
 function buildAdditionalData(billNumber) {
-  const sub = emv("01", billNumber);   // Bill number ≤25 chars
+  const sub = emv("01", billNumber);
   return emv("62", sub);
 }
 
-export function buildPayNowPayload({ name, phone, service, amount }) {
+export function buildPayNowPayload({ name, phone, service, amount, id }) {
   const editable = true;
-  const suffix = (phone || "").slice(-4) || "xxxx";
-  const billNumber = `${name}${suffix} ${service === "Eyelash Extensions" ? "Lash" : "Touchup"}`;
-  const amt = amount > 0 ? Number(amount).toFixed(2) : "";
+  const billNumber = id || "0";
 
   const fields = [
-    emv("00", "01"),                                    // Payload Format Indicator
-    emv("01", "12"),                                    // Point of Initiation: dynamic
-    buildMerchantAccountInfo(editable),                 // Merchant Account Info (26)
-    emv("52", "0000"),                                  // Merchant Category Code
-    emv("53", "702"),                                   // Transaction Currency (SGD)
+    emv("00", "01"),
+    emv("01", "12"),
+    buildMerchantAccountInfo(editable),
+    emv("52", "0000"),
+    emv("53", "702"),
   ];
 
-  if (amt) fields.push(emv("54", amt));                 // Transaction Amount (optional)
+  if (amount > 0) fields.push(emv("54", Number(amount).toFixed(2)));
 
   fields.push(
-    emv("58", "SG"),                                    // Country Code
-    emv("59", "NA"),                                    // Merchant Name
-    emv("60", "Singapore"),                             // Merchant City
-    buildAdditionalData(billNumber),                    // Additional Data (62)
-    "6304"                                              // CRC placeholder
+    emv("58", "SG"),
+    emv("59", "NA"),
+    emv("60", "Singapore"),
+    buildAdditionalData(billNumber),
+    "6304"
   );
 
   const payload = fields.join("");
