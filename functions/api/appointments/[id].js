@@ -21,15 +21,21 @@ export async function onRequestDelete(context) {
 
     await context.env.APPOINTMENTS_KV.put("agenda", JSON.stringify(updated));
 
-    // Fire-and-forget delete from Google Sheets
-    fetch(
-      "https://script.google.com/macros/s/AKfycbzGcvuD5_9JrIlizn6jALo96Iy3nTRzRDg3cT_d5jfd1KlaFnP4SpWMCqsZftKf-CRrIg/exec",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "delete", id }),
-      }
-    ).catch(() => {});
+    // Delete from Google Sheets
+    try {
+      const gsRes = await fetch(
+        "https://script.google.com/macros/s/AKfycbzGcvuD5_9JrIlizn6jALo96Iy3nTRzRDg3cT_d5jfd1KlaFnP4SpWMCqsZftKf-CRrIg/exec",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "delete", id }),
+        }
+      );
+      const gsText = await gsRes.text();
+      console.log("GS delete response:", gsText);
+    } catch (e) {
+      console.error("GS delete failed:", e);
+    }
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { "Content-Type": "application/json" },
