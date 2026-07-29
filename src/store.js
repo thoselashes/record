@@ -5,6 +5,7 @@ const DRAFTS_KEY = "thoselashes-drafts";
 const useStore = create((set, get) => ({
   appointments: [],
   drafts: loadItem(DRAFTS_KEY, {}),
+  toast: null,
 
   fetchAppointments: async () => {
     try {
@@ -53,13 +54,8 @@ const useStore = create((set, get) => ({
   },
 
   deleteAppointment: async (id) => {
-    const { appointments } = get();
-    const appointment = appointments.find((a) => a.id === id);
-    if (!appointment) return;
-
     const res = await fetch(`/api/appointments/${id}`, { method: "DELETE" });
     if (!res.ok) throw new Error("Delete failed");
-
     await get().fetchAppointments();
   },
 
@@ -68,6 +64,9 @@ const useStore = create((set, get) => ({
     saveItem(DRAFTS_KEY, drafts);
     set({ drafts });
   },
+
+  showToast: (message) => set({ toast: message }),
+  clearToast: () => set({ toast: null }),
 }));
 
 function loadItem(key, fallback) {

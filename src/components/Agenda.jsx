@@ -6,15 +6,6 @@ function firstName(name) {
   return name.split(/[\s-]/)[0];
 }
 
-function groupByDate(list) {
-  const map = {};
-  for (const a of list) {
-    if (!map[a.date]) map[a.date] = [];
-    map[a.date].push(a);
-  }
-  return Object.entries(map).sort(([a], [b]) => a.localeCompare(b));
-}
-
 export default function Agenda({ onSelect }) {
   const { appointments } = useStore();
   const [showHistory, setShowHistory] = useState(false);
@@ -22,18 +13,44 @@ export default function Agenda({ onSelect }) {
 
   const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
-  const { todayUpcoming, past } = useMemo(() => {
-    const today = [], past = [];
+  const { todayUpcoming, historyDays } = useMemo(() => {
+    const today = [];
+
     for (const a of appointments) {
-      if (a.date >= todayStr) today.push(a);
-      else past.push(a);
+      if (!a.submitted && a.date >= todayStr) {
+        today.push(a);
+      }
     }
-    return { todayUpcoming: groupByDate(today), past: groupByDate(past) };
+
+    // Build history: submitted today + all past dates
+    const histMap = {};
+    for (const a of appointments) {
+      if (a.submitted || a.date < todayStr) {
+        if (!histMap[a.date]) histMap[a.date] = [];
+        histMap[a.date].push(a);
+      }
+    }
+
+    // Sort history dates newest first
+    const historyDays = Object.entries(histMap)
+      .sort(([a], [b]) => b.localeCompare(a))
+      .map(([date, apps]) => [date, [...apps].sort((a, b) => a.timeMinutes - b.timeMinutes)]);
+
+    return {
+      todayUpcoming: (() => {
+        const map = {};
+        for (const a of today) {
+          if (!map[a.date]) map[a.date] = [];
+          map[a.date].push(a);
+        }
+        return Object.entries(map).sort(([a], [b]) => a.localeCompare(b));
+      })(),
+      historyDays,
+    };
   }, [appointments, todayStr]);
 
-  const totalHistoryDays = past.length;
-  const currentDay = past.at(-1 - historyIdx);
-  const canPrev = historyIdx < totalHistoryDays - 1;
+  const currentDay = historyDays[historyIdx];
+  const canPrev = historyIdx < historyDays.length - 1;
   const canNext = historyIdx > 0;
 
   return (
@@ -42,7 +59,7 @@ export default function Agenda({ onSelect }) {
         <h2 className="text-lg font-medium text-gray-700">
           {showHistory ? "History" : "Today's Appointments"}
         </h2>
-        {totalHistoryDays > 0 && (
+        {historyDays.length > 0 && (
           <button
             type="button"
             onClick={() => {
@@ -59,7 +76,7 @@ export default function Agenda({ onSelect }) {
       {!showHistory && (
         <>
           {!todayUpcoming.length && (
-            <p className="text-gray-400 text-sm">No appointments today.</p>
+            <p className="text-gray-400 text-sm">No active appointments.</p>
           )}
           {todayUpcoming.map(([date, apps]) => (
             <DateGroup
@@ -89,7 +106,7 @@ export default function Agenda({ onSelect }) {
                   ← Prev Day
                 </button>
                 <span className="text-sm font-semibold text-gray-700">
-                  {formatDate(currentDay[0])}
+                  {currentDay[0] === todayStr ? "Today" : formatDate(currentDay[0])}
                 </span>
                 <button
                   type="button"
@@ -110,21 +127,21 @@ export default function Agenda({ onSelect }) {
 }
 
 function DateGroup({ label, apps, onSelect }) {
+  const sorted = [...apps].sort((a, b) => a.timeMinutes - b.timeMinutes);
   return (
     <div className="mb-6">
       <h3 className={`text-sm font-medium mb-2 ${label === "Today" ? "text-blue-600" : "text-gray-500"}`}>
         {label}
       </h3>
-      <AppointmentList apps={apps} onSelect={onSelect} />
+      <AppointmentList apps={sorted} onSelect={onSelect} />
     </div>
   );
 }
 
 function AppointmentList({ apps, onSelect }) {
-  const sorted = [...apps].sort((a, b) => a.timeMinutes - b.timeMinutes);
   return (
     <div className="space-y-2">
-      {sorted.map((app) => (
+      {apps.map((app) => (
         <button
           key={app.id}
           onClick={() => onSelect(app.id)}

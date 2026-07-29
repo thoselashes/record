@@ -5,7 +5,7 @@ import { minutesToTime } from "../constants";
 import TAG_GROUPS from "../constants/tags.json";
 
 export default function Detail({ selectedId, onClose }) {
-  const { appointments, drafts, updateDraft, submitAppointment, deleteAppointment } = useStore();
+  const { appointments, drafts, updateDraft, submitAppointment, deleteAppointment, showToast } = useStore();
   const [deleting, setDeleting] = useState(false);
 
   const appointment = appointments.find((a) => a.id === selectedId);
@@ -158,9 +158,10 @@ export default function Detail({ selectedId, onClose }) {
       {/* Action Buttons */}
       <div className="flex gap-3 pt-3 border-t border-gray-100">
         <button
-          onClick={async () => {
-            await submitAppointment(appointment.id);
+          onClick={() => {
             onClose();
+            showToast(isSubmitted ? "Updated" : "Submitted");
+            submitAppointment(appointment.id).catch(() => showToast("Submission failed"));
           }}
           className="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 text-sm font-medium transition"
         >
@@ -173,9 +174,10 @@ export default function Detail({ selectedId, onClose }) {
               setDeleting(true);
               try {
                 await deleteAppointment(appointment.id);
+                showToast("Deleted");
                 onClose();
               } catch {
-                alert("Delete failed");
+                showToast("Delete failed");
               } finally {
                 setDeleting(false);
               }

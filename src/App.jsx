@@ -1,17 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import useStore from "./store";
 import Agenda from "./components/Agenda";
 import Records from "./components/Records";
 import Detail from "./components/Detail";
 
 export default function App() {
-  const { fetchAppointments } = useStore();
-  const [selectedId, setSelectedId] = useState(null);
-  const [tab, setTab] = useState("agenda");
+  const { fetchAppointments, toast, clearToast } = useStore();
+  const [selectedId, setSelectedId] = React.useState(null);
+  const [tab, setTab] = React.useState("agenda");
 
   useEffect(() => {
     fetchAppointments();
   }, [fetchAppointments]);
+
+  useEffect(() => {
+    if (toast) {
+      const t = setTimeout(clearToast, 2500);
+      return () => clearTimeout(t);
+    }
+  }, [toast, clearToast]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -51,6 +58,13 @@ export default function App() {
         {tab === "records" && <Records onSelect={setSelectedId} />}
         <Detail selectedId={selectedId} onClose={() => setSelectedId(null)} />
       </main>
+
+      {/* Toast notification */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white px-5 py-2.5 rounded-lg text-sm font-medium shadow-lg transition">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

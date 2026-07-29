@@ -3,7 +3,7 @@ import useStore from "../store";
 import { minutesToTime, formatDate as fmt } from "../constants";
 
 export default function Records({ onSelect }) {
-  const { appointments } = useStore();
+  const { appointments, showToast } = useStore();
   const [deleting, setDeleting] = useState(null);
 
   const sorted = useMemo(
@@ -26,8 +26,9 @@ export default function Records({ onSelect }) {
       const res = await fetch(`/api/appointments/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Delete failed");
       await useStore.getState().fetchAppointments();
+      showToast("Deleted");
     } catch {
-      alert("Delete failed");
+      showToast("Delete failed");
     } finally {
       setDeleting(null);
     }
