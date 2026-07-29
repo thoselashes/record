@@ -43,7 +43,7 @@ export default function Records({ onSelect }) {
         <button
           type="button"
           onClick={() => setShowEntry(true)}
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-600 text-white text-lg font-medium hover:bg-blue-700 transition"
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-[#c7006a] text-white text-lg font-medium hover:bg-[#c7006a]/80 transition"
         >
           +
         </button>
@@ -86,7 +86,7 @@ export default function Records({ onSelect }) {
                     <button
                       onClick={(e) => handleDelete(r.id, e)}
                       disabled={deleting === r.id}
-                      className="text-red-500 hover:text-red-700 text-sm font-medium disabled:opacity-40"
+                      className="text-[#c7006a] hover:text-[#c7006a]/70 text-sm font-medium disabled:opacity-40"
                     >
                       {deleting === r.id ? "..." : "Delete"}
                     </button>
@@ -123,7 +123,7 @@ export default function Records({ onSelect }) {
               <button
                 onClick={(e) => handleDelete(r.id, e)}
                 disabled={deleting === r.id}
-                className="mt-2 text-red-500 hover:text-red-700 text-xs font-medium disabled:opacity-40"
+                className="mt-2 text-[#c7006a] hover:text-[#c7006a]/70 text-xs font-medium disabled:opacity-40"
               >
                 {deleting === r.id ? "Deleting..." : "Delete"}
               </button>

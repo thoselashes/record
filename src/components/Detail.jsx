@@ -26,8 +26,8 @@ export default function Detail({ selectedId, onClose }) {
   const isSubmitted = appointment.submitted;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-start sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
-      <div className="bg-white w-full sm:max-w-md sm:rounded-xl rounded-t-2xl max-h-[90vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 bg-black/40 flex items-start sm:items-center justify-center sm:p-2 overflow-y-auto" onClick={onClose}>
+      <div className="bg-white w-full sm:max-w-[560px] sm:rounded-xl rounded-2xl shadow-2xl m-4 mb-8" onClick={(e) => e.stopPropagation()}>
       <section className="p-4">
       <div className="flex items-center justify-between">
         <h2 className="font-medium text-gray-900">{appointment.customerName}</h2>
@@ -94,9 +94,9 @@ export default function Detail({ selectedId, onClose }) {
                   className={`px-2.5 py-1 rounded-full text-xs font-medium border transition ${
                     (draft.tags || []).includes(tag)
                       ? groupId <= "2"
-                        ? "bg-blue-100 border-blue-300 text-blue-800"
-                        : "bg-purple-100 border-purple-300 text-purple-800"
-                      : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"
+                        ? "bg-[#fad5da] border-[#cfad5d] text-[#c7006a]"
+                        : "bg-[#fad5da] border-[#cfad5d] text-[#c7006a]"
+                      : "bg-white border-gray-200 text-[#c7006a] hover:border-[#cfad5d]"
                   }`}
                 >
                   {tag}
@@ -137,19 +137,22 @@ export default function Detail({ selectedId, onClose }) {
                 updateDraft(appointment.id, "_customTag", "");
               }
             }}
-            className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition"
+            className="px-3 py-1.5 bg-[#fbecf5] hover:bg-[#fad5da] rounded-lg text-sm font-medium text-[#c7006a] transition"
           >
             +
           </button>
         </div>
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2">
-            {tags.map((tag) => (
-              <span
-                key={tag}
-                className="px-2 py-0.5 bg-gray-100 rounded-full text-xs text-gray-600"
-              >
+            {(draft.tags || []).map((tag) => (
+              <span key={tag} className="px-2 py-0.5 bg-gray-100 rounded-full text-xs text-gray-600">{tag}</span>
+            ))}
+            {(draft.customTags || []).map((tag) => (
+              <span key={tag} className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs text-gray-600">
                 {tag}
+                <button type="button"
+                  onClick={() => updateDraft(appointment.id, "customTags", (draft.customTags || []).filter((t) => t !== tag))}
+                  className="text-gray-400 hover:text-gray-600 leading-none">&times;</button>
               </span>
             ))}
           </div>
@@ -165,7 +168,7 @@ export default function Detail({ selectedId, onClose }) {
               .then(() => showToast(isSubmitted ? "Updated" : "Submitted"))
               .catch(() => showToast("Submission failed"));
           }}
-          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 text-sm font-medium transition"
+          className="flex-1 bg-[#c7006a] hover:bg-[#c7006a]/80 text-white rounded-lg py-2 text-sm font-medium transition"
         >
           {isSubmitted ? "Update" : "Submit"}
         </button>
@@ -185,14 +188,14 @@ export default function Detail({ selectedId, onClose }) {
               }
             }}
             disabled={deleting}
-            className="px-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg py-2 text-sm font-medium border border-red-200 transition disabled:opacity-40"
+            className="px-4 bg-white hover:bg-[#fad5da]/60 text-[#c7006a] rounded-lg py-2 text-sm font-medium border border-[#cfad5d]/20 transition disabled:opacity-40"
           >
             {deleting ? "..." : "Delete"}
           </button>
         )}
         <button
           onClick={onClose}
-          className="flex-1 bg-white hover:bg-gray-50 text-gray-700 rounded-lg py-2 text-sm font-medium border border-gray-200 transition"
+          className="flex-1 bg-white hover:bg-[#fad5da]/60 text-[#c7006a] rounded-lg py-2 text-sm font-medium border border-[#cfad5d]/20 transition"
         >
           Back
         </button>

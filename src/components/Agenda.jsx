@@ -48,7 +48,7 @@ export default function Agenda({ onSelect }) {
               type="button"
               onClick={() => setDayIdx(dayIdx - 1)}
               disabled={dayIdx <= 0}
-              className="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
+              className="px-3 py-1.5 text-sm font-medium rounded-lg border border-[#cfad5d]/20 bg-white text-[#c7006a] hover:bg-[#fad5da]/60 disabled:opacity-30 disabled:cursor-not-allowed transition"
             >
               ← Prev
             </button>
@@ -59,7 +59,7 @@ export default function Agenda({ onSelect }) {
               type="button"
               onClick={() => setDayIdx(dayIdx + 1)}
               disabled={dayIdx >= dateList.length - 1}
-              className="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
+              className="px-3 py-1.5 text-sm font-medium rounded-lg border border-[#cfad5d]/20 bg-white text-[#c7006a] hover:bg-[#fad5da]/60 disabled:opacity-30 disabled:cursor-not-allowed transition"
             >
               Next →
             </button>
