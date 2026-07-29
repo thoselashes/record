@@ -1,9 +1,10 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import useStore from "../store";
 import { minutesToTime, formatDate as fmt } from "../constants";
 
 export default function Records({ onSelect }) {
   const { appointments } = useStore();
+  const [deleting, setDeleting] = useState(null);
 
   const sorted = useMemo(
     () =>
@@ -16,6 +17,21 @@ export default function Records({ onSelect }) {
         }),
     [appointments]
   );
+
+  const handleDelete = async (id, e) => {
+    e.stopPropagation();
+    if (!confirm("Delete this record?")) return;
+    setDeleting(id);
+    try {
+      const res = await fetch(`/api/appointments/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Delete failed");
+      await useStore.getState().fetchAppointments();
+    } catch {
+      alert("Delete failed");
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   return (
     <section>
@@ -36,6 +52,7 @@ export default function Records({ onSelect }) {
                 <th className="pb-2 pr-3 font-medium">Service</th>
                 <th className="pb-2 pr-3 font-medium text-right">Amount</th>
                 <th className="pb-2 font-medium">Tags</th>
+                <th className="pb-2 font-medium text-right">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -52,6 +69,15 @@ export default function Records({ onSelect }) {
                   <td className="py-2.5 pr-3 text-gray-700 text-right whitespace-nowrap">${Number(r.amount).toFixed(2)}</td>
                   <td className="py-2.5 text-gray-500 max-w-[200px] truncate">
                     {r.tags?.length ? r.tags.join(", ") : "—"}
+                  </td>
+                  <td className="py-2.5 text-right">
+                    <button
+                      onClick={(e) => handleDelete(r.id, e)}
+                      disabled={deleting === r.id}
+                      className="text-red-500 hover:text-red-700 text-sm font-medium disabled:opacity-40"
+                    >
+                      {deleting === r.id ? "..." : "Delete"}
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -84,6 +110,13 @@ export default function Records({ onSelect }) {
                   ))}
                 </div>
               )}
+              <button
+                onClick={(e) => handleDelete(r.id, e)}
+                disabled={deleting === r.id}
+                className="mt-2 text-red-500 hover:text-red-700 text-xs font-medium disabled:opacity-40"
+              >
+                {deleting === r.id ? "Deleting..." : "Delete"}
+              </button>
             </div>
           ))}
         </div>

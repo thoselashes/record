@@ -52,6 +52,17 @@ const useStore = create((set, get) => ({
     await get().fetchAppointments();
   },
 
+  deleteAppointment: async (id) => {
+    const { appointments } = get();
+    const appointment = appointments.find((a) => a.id === id);
+    if (!appointment) return;
+
+    const res = await fetch(`/api/appointments/${id}`, { method: "DELETE" });
+    if (!res.ok) throw new Error("Delete failed");
+
+    await get().fetchAppointments();
+  },
+
   updateDraft: (id, field, value) => {
     const drafts = { ...get().drafts, [id]: { ...get().drafts[id], [field]: value } };
     saveItem(DRAFTS_KEY, drafts);

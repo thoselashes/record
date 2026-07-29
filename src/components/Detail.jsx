@@ -1,11 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import useStore from "../store";
 import QRCode from "./QRCode";
 import { minutesToTime } from "../constants";
 import TAG_GROUPS from "../constants/tags.json";
 
 export default function Detail({ selectedId, onClose }) {
-  const { appointments, drafts, updateDraft, submitAppointment } = useStore();
+  const { appointments, drafts, updateDraft, submitAppointment, deleteAppointment } = useStore();
+  const [deleting, setDeleting] = useState(false);
 
   const appointment = appointments.find((a) => a.id === selectedId);
   const draft = selectedId ? drafts[selectedId] || {} : {};
@@ -165,6 +166,26 @@ export default function Detail({ selectedId, onClose }) {
         >
           {isSubmitted ? "Update" : "Submit"}
         </button>
+        {isSubmitted && (
+          <button
+            onClick={async () => {
+              if (!confirm(`Delete ${appointment.customerName}?`)) return;
+              setDeleting(true);
+              try {
+                await deleteAppointment(appointment.id);
+                onClose();
+              } catch {
+                alert("Delete failed");
+              } finally {
+                setDeleting(false);
+              }
+            }}
+            disabled={deleting}
+            className="px-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg py-2 text-sm font-medium border border-red-200 transition disabled:opacity-40"
+          >
+            {deleting ? "..." : "Delete"}
+          </button>
+        )}
         <button
           onClick={onClose}
           className="flex-1 bg-white hover:bg-gray-50 text-gray-700 rounded-lg py-2 text-sm font-medium border border-gray-200 transition"

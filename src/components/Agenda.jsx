@@ -23,9 +23,8 @@ export default function Agenda({ onSelect }) {
   const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
   const { todayUpcoming, past } = useMemo(() => {
-    const active = appointments.filter((a) => !a.submitted);
     const today = [], past = [];
-    for (const a of active) {
+    for (const a of appointments) {
       if (a.date >= todayStr) today.push(a);
       else past.push(a);
     }
@@ -60,7 +59,7 @@ export default function Agenda({ onSelect }) {
       {!showHistory && (
         <>
           {!todayUpcoming.length && (
-            <p className="text-gray-400 text-sm">No active appointments.</p>
+            <p className="text-gray-400 text-sm">No appointments today.</p>
           )}
           {todayUpcoming.map(([date, apps]) => (
             <DateGroup
@@ -76,7 +75,7 @@ export default function Agenda({ onSelect }) {
       {showHistory && (
         <>
           {!currentDay && (
-            <p className="text-gray-400 text-sm">No historical days.</p>
+            <p className="text-gray-400 text-sm">No historical appointments.</p>
           )}
           {currentDay && (
             <div>
@@ -148,7 +147,7 @@ function AppointmentList({ apps, onSelect }) {
             </div>
           )}
           {app.submitted && !(app.amount > 0) && (
-            <div className="text-xs text-gray-400 mt-1">Submitted</div>
+            <div className="text-xs text-gray-400 mt-1">Pending</div>
           )}
         </button>
       ))}
