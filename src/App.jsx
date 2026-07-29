@@ -22,18 +22,18 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-2xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-900">Thoselashes</h1>
+      <header className="bg-[#fbecf5] shadow-sm h-[min(10vh,150px)]">
+        <div className="px-4 h-full md:max-w-[600px] mx-auto">
+          <div className="flex items-center justify-between h-full">
+            <img src="/thoselashes-logo.png" alt="Thoselashes" className="h-full max-h-full w-auto object-contain py-2" />
             <nav className="flex gap-1">
               <button
                 type="button"
                 onClick={() => setTab("agenda")}
                 className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${
                   tab === "agenda"
-                    ? "bg-blue-100 text-blue-700"
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                    ? "bg-[#fad5da] text-[#c7006a] ring-1 ring-[#cfad5d]/40"
+                    : "text-[#c7006a] hover:bg-[#fad5da]/60"
                 }`}
               >
                 Agenda
@@ -43,8 +43,8 @@ export default function App() {
                 onClick={() => setTab("records")}
                 className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${
                   tab === "records"
-                    ? "bg-blue-100 text-blue-700"
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                    ? "bg-[#fad5da] text-[#c7006a] ring-1 ring-[#cfad5d]/40"
+                    : "text-[#c7006a] hover:bg-[#fad5da]/60"
                 }`}
               >
                 Records
@@ -53,7 +53,7 @@ export default function App() {
           </div>
         </div>
       </header>
-      <main className="max-w-2xl mx-auto px-4 py-4">
+      <main className="md:max-w-[600px] mx-auto px-4 py-4">
         {tab === "agenda" && <Agenda onSelect={setSelectedId} />}
         {tab === "records" && <Records onSelect={setSelectedId} />}
         <Detail selectedId={selectedId} onClose={() => setSelectedId(null)} />
