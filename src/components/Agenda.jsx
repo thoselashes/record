@@ -88,7 +88,7 @@ function AppointmentList({ apps, onSelect }) {
               {minutesToTime(app.timeMinutes)}
             </span>
           </div>
-          <div className="text-sm text-gray-600 mt-0.5">
+	  <div className="text-sm text-[#c7006a] mt-0.5 italic">
             {app.service}
           </div>
           {app.submitted && app.amount > 0 && (
