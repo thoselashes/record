@@ -4,7 +4,3 @@ pages_build_output_dir = "build"
 
 [vars]
 ENV = "development"
-
-[[kv_namespaces]]
-binding = "APPOINTMENTS_KV"
-id = "APPOINTMENTS_KV"
