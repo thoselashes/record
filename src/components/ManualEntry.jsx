@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import useStore from "../store";
 import { sortTags } from "../constants";
 import TAG_GROUPS from "../constants/tags.json";
@@ -60,7 +60,7 @@ export default function ManualEntry({ onClose }) {
 
   const allTags = [...form.tags, ...form.customTags];
 
-  const suggestions = (() => {
+  const suggestions = useMemo(() => {
     const q = form.mobileNumber.replace(/[^0-9]/g, "");
     if (q.length < 4) return [];
     const seen = new Set();
@@ -74,7 +74,7 @@ export default function ManualEntry({ onClose }) {
       if (results.length >= 10) break;
     }
     return results;
-  })();
+  }, [form.mobileNumber, appointments]);
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-start sm:items-center justify-center sm:p-4 overflow-y-auto" onClick={onClose}>
@@ -97,7 +97,7 @@ export default function ManualEntry({ onClose }) {
             <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
             <div className="relative">
               <input type="tel" value={form.mobileNumber}
-                onChange={(e) => setForm({ ...form, mobileNumber: e.target.value })}
+                onChange={(e) => setForm((prev) => ({ ...prev, mobileNumber: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-20"
                 placeholder="+65 9123 4567" />
               {suggestions.length > 0 && (
