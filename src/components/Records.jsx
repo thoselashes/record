@@ -90,7 +90,8 @@ export default function Records({ onSelect }) {
             date,
             records: records.filter((r) => r.submitted).sort((a, b) => a.timeMinutes - b.timeMinutes),
             meta: dayMeta[date] || { amount: 0, submitted: 0, total: 0 },
-          })),
+          }))
+          .filter((d) => d.records.length > 0),
       }));
 
     return { groups, yearTotal, yearCount, monthTotal, monthCount };
