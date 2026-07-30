@@ -62,7 +62,7 @@ export default function ManualEntry({ onClose }) {
 
   const suggestions = useMemo(() => {
     const q = form.mobileNumber.replace(/[^0-9]/g, "");
-    if (q.length < 4) return [];
+    if (q.length < 3) return [];
     const seen = new Set();
     const results = [];
     for (const a of appointments) {
