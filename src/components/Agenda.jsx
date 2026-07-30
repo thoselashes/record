@@ -6,7 +6,7 @@ function firstName(name) {
   return name.split(/[\s-]/)[0];
 }
 
-export default function Agenda({ onSelect }) {
+export default function Agenda({ onSelect, agendaReset }) {
   const { appointments } = useStore();
   const [dayIdx, setDayIdx] = useState(0);
 
@@ -26,12 +26,13 @@ export default function Agenda({ onSelect }) {
     return { dateList: dates, groups: sorted };
   }, [appointments]);
 
+  // Reset to today whenever the user navigates to the Agenda tab
   useEffect(() => {
     if (dateList.length) {
       const idx = dateList.indexOf(today);
       setDayIdx(idx >= 0 ? idx : 0);
     }
-  }, [dateList]);
+  }, [agendaReset]);
 
   const currentDate = dateList[dayIdx];
   const apps = currentDate ? groups[currentDate] : [];
