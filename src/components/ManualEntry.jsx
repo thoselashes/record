@@ -165,7 +165,7 @@ export default function ManualEntry({ onClose }) {
                     <button key={tag} type="button" onClick={() => toggleTag(tag)}
                       className={`px-2.5 py-1 rounded-full text-xs font-medium border transition ${
                         form.tags.includes(tag)
-                          ? groupId <= "2" ? "bg-[#fad5da] border-[#cfad5d] text-[#c7006a]" : "bg-[#fad5da] border-[#cfad5d] text-[#c7006a]"
+                          ? "bg-[#fad5da] border-[#cfad5d] text-[#c7006a]"
                           : "bg-white border-gray-200 text-[#c7006a] hover:border-[#cfad5d]"
                       }`}>{tag}</button>
                   ))}

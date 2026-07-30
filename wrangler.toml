@@ -5,6 +5,3 @@ pages_build_output_dir = "build"
 [[kv_namespaces]]
 binding = "APPOINTMENTS_KV"
 id = "035aebe30a0242f191e86d57250f6c1d"
-
-[vars]
-ENV = "development"

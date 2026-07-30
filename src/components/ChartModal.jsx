@@ -25,7 +25,6 @@ export default function ChartModal({ appointments, onClose }) {
 
   const maxAmount = Math.max(...monthly.map((m) => m.amount), 1);
   const maxCount = Math.max(...monthly.map((m) => m.count), 1);
-  const chartW = 600, chartH = 280, barW = 30, gap = 12, pad = 40;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-2" onClick={onClose}>

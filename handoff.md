@@ -84,8 +84,6 @@ None — session completed all deliverables. If the mobile search issue persists
 
 - **iOS Safari date picker** — `showPicker()` may not work on iOS when called from an overlay `onClick`. The hidden `<input type="date">` approach may need to become a visible styled input.
 - **Apps Script deployment URL** — the URL stored in `functions/api/submit.js` and `functions/api/appointments/[id].js` may be stale if GS was redeployed since the last commit.
-- **KV seed data** — `functions/api/seed.js` was deleted. If the KV namespace `APPOINTMENTS_KV` (ID: `035aebe30a0242f191e86d57250f6c1d`) needs reseeding, there's no endpoint to do it from the app.
-- **ManualEntry mobile search** — User reports it still doesn't work despite `.includes()` contains matching and `useMemo` with proper deps. Needs live debugging in browser to determine if it's a rendering issue (dropdown hidden behind other elements) or a data-loading timing issue.
 - **PWA icon** — New padded icons deployed but user hasn't confirmed the appearance on device after re-adding to home screen.
 
 ## 8. ENVIRONMENT SNAPSHOT

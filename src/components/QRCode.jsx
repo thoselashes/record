@@ -7,7 +7,7 @@ export default function QRCode({ amount, name, phone, service, id }) {
   const fgColor = amount > 0 ? "#000000" : "#4B5563";
 
   return (
-    <div className="inline-block p-1 bg-white rounded-lg border border-gray-200" w-150px>
+    <div className="inline-block p-1 bg-white rounded-lg border border-gray-200">
       <QRCodeCanvas
         value={payload}
         size={200}

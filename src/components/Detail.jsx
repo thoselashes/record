@@ -106,9 +106,7 @@ export default function Detail({ selectedId, onClose }) {
                   }}
                   className={`px-2.5 py-1 rounded-full text-xs font-medium border transition ${
                     (draft.tags || []).includes(tag)
-                      ? groupId <= "2"
-                        ? "bg-[#fad5da] border-[#cfad5d] text-[#c7006a]"
-                        : "bg-[#fad5da] border-[#cfad5d] text-[#c7006a]"
+                      ? "bg-[#fad5da] border-[#cfad5d] text-[#c7006a]"
                       : "bg-white border-gray-200 text-[#c7006a] hover:border-[#cfad5d]"
                   }`}
                 >
