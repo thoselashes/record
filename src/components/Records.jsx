@@ -158,20 +158,18 @@ export default function Records({ onSelect }) {
                   <div className="space-y-4">
                     {days.map(({ date, records, meta: dayMeta }) => (
                       <div key={date}>
-                        <div className="bg-[#fad5da] rounded-lg border border-[#cfad5d]/30 px-3 py-2 mb-2">
-                          <div className="flex items-baseline justify-between">
-                            <span className="text-xs font-semibold text-gray-600">{dayLabel(date)}</span>
-                            <span className="text-xs text-green-600 font-semibold">
-                              ${dayMeta.amount.toFixed(2)} ({dayMeta.submitted}/{dayMeta.total})
-                            </span>
-                          </div>
+                        <div className="flex items-baseline justify-between mb-1.5 ml-1">
+                          <span className="text-xs font-medium text-gray-400">{dayLabel(date)}</span>
+                          <span className="text-xs text-green-600 font-semibold">
+                            ${dayMeta.amount.toFixed(2)} ({dayMeta.submitted}/{dayMeta.total})
+                          </span>
                         </div>
                         <div className="space-y-1.5">
                           {records.map((r) => (
                             <div
                               key={r.id}
                               onClick={() => onSelect?.(r.id)}
-                              className="bg-white rounded-lg border border-gray-100 px-3 py-2 cursor-pointer hover:border-gray-200 hover:shadow-sm transition flex items-center gap-3"
+                              className="bg-[#fbecf5] rounded-lg border border-[#cfad5d]/30 px-3 py-2 cursor-pointer hover:border-[#cfad5d]/60 transition flex items-center gap-3"
                             >
                               <span className="text-sm text-gray-500 shrink-0 w-12 tabular-nums">{minutesToTime(r.timeMinutes)}</span>
                               <span className="text-sm font-display font-medium text-gray-900 shrink-0 min-w-0 truncate flex-1">{r.customerName}</span>
