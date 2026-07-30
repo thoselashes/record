@@ -109,7 +109,7 @@ export default function Agenda({ onSelect }) {
 
   return (
     <section>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between">
         <button
           type="button"
           onClick={() => setDayIdx(dayIdx - 1)}
@@ -144,7 +144,7 @@ export default function Agenda({ onSelect }) {
       {currentDate && currentDate !== todayStr() && (
         <div className="text-center mb-3">
           <button onClick={() => goToday()} className="text-xs text-[#c7006a] hover:text-[#c7006a]/70 underline underline-offset-2 transition">
-            &larr; Back to today
+            Back to today
           </button>
         </div>
       )}

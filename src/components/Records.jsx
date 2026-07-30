@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import useStore from "../store";
 import { minutesToTime } from "../constants";
 import ManualEntry from "./ManualEntry";
+import ChartModal from "./ChartModal";
 
 function weekStart(dateStr) {
   const d = new Date(dateStr + "T00:00:00");
@@ -24,6 +25,7 @@ function monthName(iso) {
 export default function Records({ onSelect }) {
   const { appointments, showToast } = useStore();
   const [showEntry, setShowEntry] = useState(false);
+  const [showCharts, setShowCharts] = useState(false);
   const [deleting, setDeleting] = useState(null);
 
   const sorted = useMemo(
@@ -108,7 +110,7 @@ export default function Records({ onSelect }) {
       ) : (
         <>
           {/* Dashboard */}
-          <div className="mb-4 bg-white rounded-lg border border-gray-200 px-4 py-3 text-sm">
+          <div className="mb-4 bg-white rounded-lg border border-gray-200 px-4 py-3 text-sm cursor-pointer hover:border-[#cfad5d]/40 transition" onClick={() => setShowCharts(true)}>
             <div className="font-medium text-green-600">
               Cumulative Total This Year: <span className="font-bold">${yearTotal.toFixed(2)}</span>
               <span className="text-gray-500 font-normal"> &nbsp;| {yearCount} appointment{yearCount !== 1 ? "s" : ""}</span>
@@ -178,6 +180,7 @@ export default function Records({ onSelect }) {
       )}
 
       {showEntry && <ManualEntry onClose={() => setShowEntry(false)} />}
+      {showCharts && <ChartModal appointments={appointments} onClose={() => setShowCharts(false)} />}
     </section>
   );
 }
