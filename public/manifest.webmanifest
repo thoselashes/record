@@ -16,12 +16,6 @@
       "src": "/thoselashes-logo.png",
       "sizes": "512x512",
       "type": "image/png"
-    },
-    {
-      "src": "/thoselashes-logo.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
     }
   ]
 }
