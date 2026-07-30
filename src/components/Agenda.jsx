@@ -55,13 +55,15 @@ export default function Agenda({ onSelect, forceToday }) {
         >
           ← Prev
         </button>
-        <input
-          type="date"
-          value={currentDate ?? ""}
-          onChange={handleDateSelect}
-          className="text-sm font-semibold text-gray-700 bg-transparent border-none outline-none cursor-pointer hover:text-[#c7006a] transition"
-          style={{ width: "auto" }}
-        />
+        <div className="relative inline-block">
+          <input
+            type="date"
+            value={currentDate ?? ""}
+            onChange={handleDateSelect}
+            className="text-sm font-semibold text-gray-700 bg-transparent border-none outline-none cursor-pointer pr-5 hover:text-[#c7006a] transition [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+          />
+          <span className="absolute right-0 top-0 text-gray-400 pointer-events-none select-none">▾</span>
+        </div>
         <button
           type="button"
           onClick={() => setDayIdx(dayIdx + 1)}
