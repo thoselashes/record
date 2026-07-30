@@ -184,7 +184,11 @@ export default function ManualEntry({ onClose }) {
             {allTags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-2">
                 {form.tags.map((tag) => (
-                  <span key={tag} className="px-2 py-0.5 bg-gray-100 rounded-full text-xs text-gray-600">{tag}</span>
+                  <span key={tag} className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs text-gray-600">
+                    {tag}
+                    <button type="button" onClick={() => setForm((f) => ({ ...f, tags: f.tags.filter((t) => t !== tag) }))}
+                      className="text-gray-400 hover:text-gray-600 leading-none">&times;</button>
+                  </span>
                 ))}
                 {form.customTags.map((tag) => (
                   <span key={tag} className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs text-gray-600">

@@ -156,8 +156,12 @@ export default function Detail({ selectedId, onClose }) {
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2">
             {(draft.tags || []).map((tag) => (
-              <button key={tag} type="button" onClick={() => updateDraft(appointment.id, "tags", (draft.tags || []).filter((t) => t !== tag))}
-                className="px-2 py-0.5 bg-gray-100 hover:bg-gray-200 rounded-full text-xs text-gray-600 cursor-pointer transition">{tag}</button>
+              <span key={tag} className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs text-gray-600">
+                {tag}
+                <button type="button"
+                  onClick={() => updateDraft(appointment.id, "tags", (draft.tags || []).filter((t) => t !== tag))}
+                  className="text-gray-400 hover:text-gray-600 leading-none">&times;</button>
+              </span>
             ))}
             {(draft.customTags || []).map((tag) => (
               <span key={tag} className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs text-gray-600">

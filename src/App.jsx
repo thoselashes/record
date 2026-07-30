@@ -7,11 +7,15 @@ import Detail from "./components/Detail";
 export default function App() {
   const { fetchAppointments, toast, clearToast } = useStore();
   const [selectedId, setSelectedId] = useState(null);
-  const [tab, setTab] = useState("agenda");
+  const [tab, setTab] = useState(() => localStorage.getItem("thoselashes-tab") || "agenda");
 
   useEffect(() => {
     fetchAppointments();
   }, [fetchAppointments]);
+
+  useEffect(() => {
+    localStorage.setItem("thoselashes-tab", tab);
+  }, [tab]);
 
   useEffect(() => {
     if (toast) {
