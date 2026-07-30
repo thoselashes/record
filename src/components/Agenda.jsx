@@ -9,6 +9,7 @@ function firstName(name) {
 export default function Agenda({ onSelect, forceToday }) {
   const { appointments } = useStore();
   const [dayIdx, setDayIdx] = useState(0);
+  const [showPicker, setShowPicker] = useState(false);
 
   const { dateList, groups } = useMemo(() => {
     const map = {};
@@ -30,39 +31,66 @@ export default function Agenda({ onSelect, forceToday }) {
     setDayIdx(idx);
   }, [forceToday, dateList]);
 
-  const currentDate = dayIdx >= 0 ? dateList[dayIdx] : null;
+  // Clamp dayIdx when dateList shrinks (e.g. delete last record on a day)
+  useEffect(() => {
+    setDayIdx((prev) => Math.max(0, Math.min(prev, dateList.length - 1)));
+  }, [dateList.length]);
+
+  const currentDate = dateList[dayIdx] ?? null;
   const apps = currentDate ? (groups[currentDate] || []) : [];
-  const isEmptyToday = dayIdx === -1;
+  const hasRecords = dateList.length > 0;
 
   return (
     <section>
-      {dateList.length === 0 || isEmptyToday ? (
-        <p className="text-gray-400 text-sm">No appointments.</p>
-      ) : (
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <button
-              type="button"
-              onClick={() => setDayIdx(dayIdx - 1)}
-              disabled={dayIdx <= 0}
-              className="px-3 py-1.5 text-sm font-medium rounded-lg border border-[#cfad5d]/20 bg-white text-[#c7006a] hover:bg-[#fad5da]/60 disabled:opacity-30 disabled:cursor-not-allowed transition"
-            >
-              ← Prev
-            </button>
-            <span className="text-sm font-semibold text-gray-700">
-              {formatDate(currentDate)}
-            </span>
-            <button
-              type="button"
-              onClick={() => setDayIdx(dayIdx + 1)}
-              disabled={dayIdx >= dateList.length - 1}
-              className="px-3 py-1.5 text-sm font-medium rounded-lg border border-[#cfad5d]/20 bg-white text-[#c7006a] hover:bg-[#fad5da]/60 disabled:opacity-30 disabled:cursor-not-allowed transition"
-            >
-              Next →
-            </button>
-          </div>
-          <AppointmentList apps={apps} onSelect={onSelect} />
+      <div className="flex items-center justify-between mb-4">
+        <button
+          type="button"
+          onClick={() => setDayIdx(dayIdx - 1)}
+          disabled={dayIdx <= 0}
+          className="px-3 py-1.5 text-sm font-medium rounded-lg border border-[#cfad5d]/20 bg-white text-[#c7006a] hover:bg-[#fad5da]/60 disabled:opacity-30 disabled:cursor-not-allowed transition"
+        >
+          ← Prev
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowPicker(!showPicker)}
+          className="text-sm font-semibold text-gray-700 hover:text-[#c7006a] transition"
+        >
+          {currentDate ? formatDate(currentDate) : "No date"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setDayIdx(dayIdx + 1)}
+          disabled={dayIdx >= dateList.length - 1}
+          className="px-3 py-1.5 text-sm font-medium rounded-lg border border-[#cfad5d]/20 bg-white text-[#c7006a] hover:bg-[#fad5da]/60 disabled:opacity-30 disabled:cursor-not-allowed transition"
+        >
+          Next →
+        </button>
+      </div>
+
+      {showPicker && (
+        <div className="mb-4 flex justify-center">
+          <input
+            type="date"
+            value={currentDate ?? ""}
+            onChange={(e) => {
+              const idx = dateList.indexOf(e.target.value);
+              if (idx >= 0) setDayIdx(idx);
+              setShowPicker(false);
+            }}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
+      )}
+
+      {!hasRecords && <p className="text-gray-400 text-sm">No appointments.</p>}
+
+      {hasRecords && apps.length === 0 && (
+        <p className="text-gray-400 text-sm">No appointments on this day.</p>
+      )}
+
+      {hasRecords && apps.length > 0 && (
+        <AppointmentList apps={apps} onSelect={onSelect} />
       )}
     </section>
   );
