@@ -134,7 +134,7 @@ export default function Records({ onSelect }) {
           {/* Dashboard */}
           <div className="mb-4 bg-white rounded-lg border border-gray-200 px-4 py-3 text-sm cursor-pointer hover:border-[#cfad5d]/40 transition" onClick={() => setShowCharts(true)}>
             <div className="font-medium text-green-600">
-              Cumulative Total This Year: <span className="font-bold">${yearTotal.toFixed(2)}</span>
+              This Year: <span className="font-bold">${yearTotal.toFixed(2)}</span>
               <span className="text-gray-500 font-normal"> &nbsp;| {yearCount} appointment{yearCount !== 1 ? "s" : ""}</span>
             </div>
             <div className="font-medium text-green-600 mt-0.5">

@@ -6,6 +6,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="theme-color" content="#c7006a" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/thoselashes-logo.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -13,6 +16,11 @@
   </head>
   <body class="bg-gray-50 text-gray-900">
     <div id="root"></div>
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/sw.js");
+      }
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
