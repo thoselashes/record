@@ -237,7 +237,7 @@ function HistoryPanel({ appointments, current, onClose }) {
   return (
     <div className="mb-3 bg-gray-50 rounded-lg border border-gray-200 p-3 text-sm">
       <div className="flex items-center justify-between mb-2">
-        <span className="font-medium text-gray-700">Past appointments</span>
+        <span className="font-medium text-gray-700">Past appointments <span className="text-gray-400 font-normal">({history.length})</span></span>
         <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xs">&times;</button>
       </div>
       {history.length === 0 ? (
