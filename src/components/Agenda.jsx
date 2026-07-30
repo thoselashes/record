@@ -55,14 +55,18 @@ export default function Agenda({ onSelect, forceToday }) {
         >
           ← Prev
         </button>
-        <div className="relative inline-block">
+        <div className="relative inline-block cursor-pointer" onClick={() => document.getElementById('agenda-date-input')?.showPicker?.()}>
           <input
+            id="agenda-date-input"
             type="date"
             value={currentDate ?? ""}
             onChange={handleDateSelect}
-            className="text-sm font-semibold text-gray-700 bg-transparent border-none outline-none cursor-pointer pr-5 hover:text-[#c7006a] transition [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           />
-          <span className="absolute right-0 top-0 text-gray-400 pointer-events-none select-none">▾</span>
+          <span className="text-sm font-semibold text-gray-700 hover:text-[#c7006a] transition pr-5">
+            {currentDate ? formatDate(currentDate) : "No date"}
+          </span>
+          <span className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none select-none text-xs">▾</span>
         </div>
         <button
           type="button"
