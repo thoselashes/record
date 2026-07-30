@@ -144,7 +144,7 @@ export default function Agenda({ onSelect }) {
       {currentDate && currentDate !== todayStr() && (
         <div className="text-center mb-3">
           <button onClick={() => goToday()} className="text-xs text-[#c7006a] hover:text-[#c7006a]/70 underline underline-offset-2 transition">
-            Back to today
+            &larr; Back to today
           </button>
         </div>
       )}
