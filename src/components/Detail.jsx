@@ -61,29 +61,31 @@ export default function Detail({ selectedId, onClose }) {
         </div>
       )}
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Amount $ (optional)
-        </label>
-        <input
-          type="number"
-          step="0.01"
-          min="0"
-          value={draft.amount || ""}
-          onChange={(e) => updateDraft(appointment.id, "amount", e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-          placeholder="0.00"
-        />
-        <div className="mt-3 flex justify-center">
-          <QRCode
-            amount={draft.amount || 0}
-            name={appointment.customerName}
-            phone={appointment.mobileNumber}
-            service={appointment.service}
-            id={appointment.id}
+      {!appointment.submitted && (
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Amount $ (optional)
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            value={draft.amount || ""}
+            onChange={(e) => updateDraft(appointment.id, "amount", e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            placeholder="0.00"
           />
+          <div className="mt-3 flex justify-center">
+            <QRCode
+              amount={draft.amount || 0}
+              name={appointment.customerName}
+              phone={appointment.mobileNumber}
+              service={appointment.service}
+              id={appointment.id}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Tags Section */}
       <div className="mb-4">
