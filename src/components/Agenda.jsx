@@ -73,10 +73,14 @@ export default function Agenda({ onSelect }) {
   };
 
   const goToday = () => {
-    const today = new Date().toISOString().slice(0, 10);
-    const idx = allDays.indexOf(today);
+    const idx = allDays.indexOf(todayStr());
     setDayIdx(idx >= 0 ? idx : 0);
   };
+
+  function todayStr() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  }
 
   return (
     <section>
@@ -112,7 +116,7 @@ export default function Agenda({ onSelect }) {
         </button>
       </div>
 
-      {currentDate !== new Date().toISOString().slice(0, 10) && (
+      {currentDate && currentDate !== todayStr() && (
         <div className="text-center mb-3">
           <button onClick={() => goToday()} className="text-xs text-[#c7006a] hover:text-[#c7006a]/70 underline underline-offset-2 transition">
             &larr; Back to today

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import useStore from "../store";
 import { sortTags } from "../constants";
 import TAG_GROUPS from "../constants/tags.json";
@@ -6,7 +6,7 @@ import TAG_GROUPS from "../constants/tags.json";
 const SERVICES = ["Eyelash Extensions", "Touchup", "Mani/Pedi", "Lash Lift"];
 
 export default function ManualEntry({ onClose }) {
-  const { appointments, createRecord, showToast } = useStore();
+  const { appointments, createRecord, fetchAppointments, showToast } = useStore();
   const [form, setForm] = useState({
     customerName: "",
     mobileNumber: "",
@@ -18,6 +18,8 @@ export default function ManualEntry({ onClose }) {
     customTags: [],
     customTag: "",
   });
+
+  useEffect(() => { fetchAppointments(); }, []);
 
   const handleSubmit = async () => {
     if (!form.customerName.trim()) {
