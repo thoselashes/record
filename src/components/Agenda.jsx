@@ -13,8 +13,8 @@ function todayStr() {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 }
 
-function weekMonday() {
-  const d = new Date();
+function weekMonday(dateStr) {
+  const d = dateStr ? new Date(dateStr + "T00:00:00") : new Date();
   const diff = d.getDate() - ((d.getDay() + 6) % 7);
   d.setDate(diff);
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
@@ -89,23 +89,25 @@ export default function Agenda({ onSelect }) {
     setDayIdx(idx >= 0 ? idx : 0);
   };
 
-  const todayMetrics = useMemo(() => {
-    const day = todayStr();
-    const week = weekMonday();
-    const weekEnd = new Date(week + "T00:00:00");
-    weekEnd.setDate(weekEnd.getDate() + 7);
-    const weekEndStr = weekEnd.toISOString().slice(0, 10);
-
-    const dayApps = appointments.filter((a) => a.date === day);
+  const dayMetrics = useMemo(() => {
+    if (!currentDate) return { dayTotal: 0, daySubmitted: 0, dayTotalApps: 0 };
+    const dayApps = appointments.filter((a) => a.date === currentDate);
     const daySubmitted = dayApps.filter((a) => a.submitted);
     const dayTotal = daySubmitted.reduce((s, a) => s + Number(a.amount || 0), 0);
+    return { dayTotal, daySubmitted: daySubmitted.length, dayTotalApps: dayApps.length };
+  }, [appointments, currentDate]);
 
-    const weekApps = appointments.filter((a) => a.date >= week && a.date < weekEndStr);
+  const weekMetrics = useMemo(() => {
+    if (!currentDate) return { weekTotal: 0, weekSubmitted: 0, weekTotalApps: 0 };
+    const weekStart = weekMonday(currentDate);
+    const weekEnd = new Date(weekStart + "T00:00:00");
+    weekEnd.setDate(weekEnd.getDate() + 7);
+    const weekEndStr = weekEnd.toISOString().slice(0, 10);
+    const weekApps = appointments.filter((a) => a.date >= weekStart && a.date < weekEndStr);
     const weekSubmitted = weekApps.filter((a) => a.submitted);
     const weekTotal = weekSubmitted.reduce((s, a) => s + Number(a.amount || 0), 0);
-
-    return { dayTotal, daySubmitted: daySubmitted.length, dayTotalApps: dayApps.length, weekTotal, weekSubmitted: weekSubmitted.length, weekTotalApps: weekApps.length };
-  }, [appointments]);
+    return { weekTotal, weekSubmitted: weekSubmitted.length, weekTotalApps: weekApps.length };
+  }, [appointments, currentDate]);
 
   return (
     <section>
@@ -159,12 +161,12 @@ export default function Agenda({ onSelect }) {
 
       <div className="mt-4 pt-3 border-t border-gray-200 text-sm text-green-600">
         <div>
-          Total Collected Today: <span className="font-bold">${todayMetrics.dayTotal.toFixed(2)}</span>
-          <span className="text-green-500"> &nbsp;({todayMetrics.daySubmitted}/{todayMetrics.dayTotalApps})</span>
+          Total Collected: <span className="font-bold">${dayMetrics.dayTotal.toFixed(2)}</span>
+          <span className="text-green-500"> &nbsp;({dayMetrics.daySubmitted}/{dayMetrics.dayTotalApps})</span>
         </div>
         <div className="font-bold mt-0.5">
-          This Week: <span className="font-bold">${todayMetrics.weekTotal.toFixed(2)}</span>
-          <span className="text-green-500 font-normal"> &nbsp;({todayMetrics.weekSubmitted}/{todayMetrics.weekTotalApps})</span>
+          This Week: <span className="font-bold">${weekMetrics.weekTotal.toFixed(2)}</span>
+          <span className="text-green-500 font-normal"> &nbsp;({weekMetrics.weekSubmitted}/{weekMetrics.weekTotalApps})</span>
         </div>
       </div>
     </section>
