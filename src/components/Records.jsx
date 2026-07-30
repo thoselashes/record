@@ -174,11 +174,13 @@ export default function Records({ onSelect }) {
                             >
                               <span className="text-sm text-gray-500 shrink-0 w-12 tabular-nums">{minutesToTime(r.timeMinutes)}</span>
                               <span className="text-sm font-display font-medium text-gray-900 shrink-0 min-w-0 truncate flex-1">{r.customerName}</span>
-                              <span className="text-xs text-[#c7006a] italic truncate hidden sm:block max-w-[120px]">{r.service}</span>
+                              <div className="hidden sm:block text-right">
+                                <div className="text-xs text-[#c7006a] italic truncate max-w-[120px]">{r.service}</div>
+                                {r.tags?.length > 0 && (
+                                  <div className="text-xs text-gray-400 truncate max-w-[120px]">{r.tags.slice(0, 2).join(", ")}{r.tags.length > 2 ? "…" : ""}</div>
+                                )}
+                              </div>
                               <span className="text-sm text-gray-700 font-medium shrink-0">${Number(r.amount).toFixed(2)}</span>
-                              {r.tags?.length > 0 && (
-                                <span className="hidden sm:inline text-xs text-gray-400 truncate max-w-[100px]">{r.tags.slice(0, 2).join(", ")}{r.tags.length > 2 ? "…" : ""}</span>
-                              )}
                               <button
                                 onClick={(e) => handleDelete(r.id, e)}
                                 disabled={deleting === r.id}

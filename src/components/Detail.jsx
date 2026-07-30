@@ -156,7 +156,8 @@ export default function Detail({ selectedId, onClose }) {
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2">
             {(draft.tags || []).map((tag) => (
-              <span key={tag} className="px-2 py-0.5 bg-gray-100 rounded-full text-xs text-gray-600">{tag}</span>
+              <button key={tag} type="button" onClick={() => updateDraft(appointment.id, "tags", (draft.tags || []).filter((t) => t !== tag))}
+                className="px-2 py-0.5 bg-gray-100 hover:bg-gray-200 rounded-full text-xs text-gray-600 cursor-pointer transition">{tag}</button>
             ))}
             {(draft.customTags || []).map((tag) => (
               <span key={tag} className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs text-gray-600">
@@ -220,6 +221,11 @@ export default function Detail({ selectedId, onClose }) {
 }
 
 function HistoryPanel({ appointments, current, onClose }) {
+  const shortDate = (iso) => {
+    const d = new Date(iso);
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return `${d.getDate()} ${months[d.getMonth()]}`;
+  };
   const history = appointments.filter(
     (a) => a.mobileNumber && current.mobileNumber && a.mobileNumber === current.mobileNumber && a.id !== current.id
   ).sort((a, b) => (b.date + String(b.timeMinutes).padStart(5, "0")).localeCompare(a.date + String(a.timeMinutes).padStart(5, "0")));
@@ -239,7 +245,7 @@ function HistoryPanel({ appointments, current, onClose }) {
               <div>
                 <span className="text-gray-700 font-medium">{a.customerName}</span>
                 <span className="text-gray-400 ml-2 text-xs">
-                  {a.date?.slice(5)} {minutesToTime(a.timeMinutes)} &middot; {a.service}
+                  {shortDate(a.date)} {minutesToTime(a.timeMinutes)} &middot; {a.service}
                 </span>
               </div>
               <div className="flex items-center gap-2">
