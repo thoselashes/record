@@ -47,36 +47,54 @@ export default function Records({ onSelect }) {
 
     let yearTotal = 0, yearCount = 0, monthTotal = 0, monthCount = 0;
 
-    const weeks = {};
-    for (const a of sorted) {
-      const ws = weekStart(a.date);
-      if (!weeks[ws]) weeks[ws] = {};
-      if (!weeks[ws][a.date]) weeks[ws][a.date] = [];
-      weeks[ws][a.date].push(a);
-    }
-
+    // Group ALL appointments by week then by day
+    const raw = {};
+    const weekMeta = {};
+    const dayMeta = {};
     for (const a of appointments) {
-      if (a.date?.startsWith(yearStr)) {
+      if (!a.date) continue;
+      const ws = weekStart(a.date);
+      if (!raw[ws]) raw[ws] = {};
+      if (!raw[ws][a.date]) raw[ws][a.date] = [];
+      raw[ws][a.date].push(a);
+
+      // Week totals
+      if (!weekMeta[ws]) weekMeta[ws] = { amount: 0, submitted: 0, total: 0 };
+      weekMeta[ws].total++;
+      if (a.submitted) { weekMeta[ws].amount += Number(a.amount || 0); weekMeta[ws].submitted++; }
+
+      // Day totals
+      if (!dayMeta[a.date]) dayMeta[a.date] = { amount: 0, submitted: 0, total: 0 };
+      dayMeta[a.date].total++;
+      if (a.submitted) { dayMeta[a.date].amount += Number(a.amount || 0); dayMeta[a.date].submitted++; }
+
+      // Dashboard year/month
+      if (a.date.startsWith(yearStr)) {
         if (a.submitted) yearTotal += Number(a.amount || 0);
         yearCount++;
       }
-      if (a.date?.startsWith(monthStr)) {
+      if (a.date.startsWith(monthStr)) {
         if (a.submitted) monthTotal += Number(a.amount || 0);
         monthCount++;
       }
     }
 
-    const groups = Object.entries(weeks)
+    const groups = Object.entries(raw)
       .sort(([a], [b]) => b.localeCompare(a))
       .map(([ws, days]) => ({
         weekStart: ws,
+        meta: weekMeta[ws] || { amount: 0, submitted: 0, total: 0 },
         days: Object.entries(days)
           .sort(([a], [b]) => b.localeCompare(a))
-          .map(([date, records]) => ({ date, records })),
+          .map(([date, records]) => ({
+            date,
+            records: records.filter((r) => r.submitted).sort((a, b) => a.timeMinutes - b.timeMinutes),
+            meta: dayMeta[date] || { amount: 0, submitted: 0, total: 0 },
+          })),
       }));
 
     return { groups, yearTotal, yearCount, monthTotal, monthCount };
-  }, [sorted]);
+  }, [appointments]);
 
   const handleDelete = async (id, e) => {
     e.stopPropagation();
@@ -125,10 +143,7 @@ export default function Records({ onSelect }) {
 
           {/* Grouped records */}
           <div className="space-y-6">
-            {groups.map(({ weekStart: ws, days }) => {
-              const allRecords = days.flatMap((d) => d.records);
-              const weekSum = allRecords.reduce((s, r) => s + Number(r.amount || 0), 0);
-              const weekSubmitted = allRecords.filter((r) => r.submitted).length;
+            {groups.map(({ weekStart: ws, days, meta: weekMeta }) => {
               return (
                 <div key={ws}>
                   <div className="flex items-baseline justify-between mb-2 pb-1 border-b border-gray-200">
@@ -136,13 +151,20 @@ export default function Records({ onSelect }) {
                       Week of {dayLabel(ws)}
                     </span>
                     <span className="text-xs text-green-600 font-semibold">
-                      ${weekSum.toFixed(2)} ({weekSubmitted}/{allRecords.length})
+                      ${weekMeta.amount.toFixed(2)} ({weekMeta.submitted}/{weekMeta.total})
                     </span>
                   </div>
                   <div className="space-y-4">
-                    {days.map(({ date, records }) => (
+                    {days.map(({ date, records, meta: dayMeta }) => (
                       <div key={date}>
-                        <div className="text-xs font-medium text-gray-400 mb-1 ml-1">{dayLabel(date)}</div>
+                        <div className="bg-[#fad5da] rounded-lg border border-[#cfad5d]/30 px-3 py-2 mb-2">
+                          <div className="flex items-baseline justify-between">
+                            <span className="text-xs font-semibold text-gray-600">{dayLabel(date)}</span>
+                            <span className="text-xs text-green-600 font-semibold">
+                              ${dayMeta.amount.toFixed(2)} ({dayMeta.submitted}/{dayMeta.total})
+                            </span>
+                          </div>
+                        </div>
                         <div className="space-y-1.5">
                           {records.map((r) => (
                             <div
