@@ -88,7 +88,7 @@ export default function Records({ onSelect }) {
           .sort(([a], [b]) => b.localeCompare(a))
           .map(([date, records]) => ({
             date,
-            records: records.filter((r) => r.submitted).sort((a, b) => a.timeMinutes - b.timeMinutes),
+            records: records.filter((r) => r.submitted).sort((a, b) => b.timeMinutes - a.timeMinutes),
             meta: dayMeta[date] || { amount: 0, submitted: 0, total: 0 },
           }))
           .filter((d) => d.records.length > 0),
