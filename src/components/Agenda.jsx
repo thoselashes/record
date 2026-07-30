@@ -6,11 +6,9 @@ function firstName(name) {
   return name.split(/[\s-]/)[0];
 }
 
-export default function Agenda({ onSelect, agendaReset }) {
+export default function Agenda({ onSelect, forceToday }) {
   const { appointments } = useStore();
   const [dayIdx, setDayIdx] = useState(0);
-
-  const today = new Date().toISOString().slice(0, 10);
 
   const { dateList, groups } = useMemo(() => {
     const map = {};
@@ -26,24 +24,21 @@ export default function Agenda({ onSelect, agendaReset }) {
     return { dateList: dates, groups: sorted };
   }, [appointments]);
 
-  // Reset to today whenever the user navigates to the Agenda tab
   useEffect(() => {
-    if (dateList.length) {
-      const idx = dateList.indexOf(today);
-      setDayIdx(idx >= 0 ? idx : 0);
-    }
-  }, [agendaReset]);
+    const today = new Date().toISOString().slice(0, 10);
+    const idx = dateList.indexOf(today);
+    setDayIdx(idx);
+  }, [forceToday, dateList]);
 
-  const currentDate = dateList[dayIdx];
-  const apps = currentDate ? groups[currentDate] : [];
+  const currentDate = dayIdx >= 0 ? dateList[dayIdx] : null;
+  const apps = currentDate ? (groups[currentDate] || []) : [];
+  const isEmptyToday = dayIdx === -1;
 
   return (
     <section>
-      {dateList.length === 0 && (
-        <p className="text-gray-400 text-sm">No Appointments</p>
-      )}
-
-      {currentDate && (
+      {dateList.length === 0 || isEmptyToday ? (
+        <p className="text-gray-400 text-sm">No appointments.</p>
+      ) : (
         <div>
           <div className="flex items-center justify-between mb-4">
             <button
@@ -90,7 +85,7 @@ function AppointmentList({ apps, onSelect }) {
               {minutesToTime(app.timeMinutes)}
             </span>
           </div>
-	  <div className="text-sm text-[#c7006a] mt-0.5 italic">
+          <div className="text-sm text-[#c7006a] mt-0.5 italic">
             {app.service}
           </div>
           {app.submitted && app.amount > 0 && (
