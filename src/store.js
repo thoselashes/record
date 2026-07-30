@@ -76,6 +76,13 @@ const useStore = create((set, get) => ({
     set({ drafts });
   },
 
+  clearDraft: (id) => {
+    const drafts = { ...get().drafts };
+    delete drafts[id];
+    saveItem(DRAFTS_KEY, drafts);
+    set({ drafts });
+  },
+
   showToast: (message) => set({ toast: message }),
   clearToast: () => set({ toast: null }),
 }));

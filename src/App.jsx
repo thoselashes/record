@@ -5,7 +5,7 @@ import Records from "./components/Records";
 import Detail from "./components/Detail";
 
 export default function App() {
-  const { fetchAppointments, toast, clearToast } = useStore();
+  const { fetchAppointments, clearDraft, toast, clearToast } = useStore();
   const [selectedId, setSelectedId] = useState(null);
   const [tab, setTab] = useState(() => localStorage.getItem("thoselashes-tab") || "agenda");
 
@@ -64,7 +64,7 @@ export default function App() {
         <div className={tab === "records" ? "" : "hidden"}>
           <Records onSelect={setSelectedId} />
         </div>
-        <Detail selectedId={selectedId} onClose={() => setSelectedId(null)} />
+        <Detail selectedId={selectedId} onClose={() => { clearDraft(selectedId); setSelectedId(null); }} />
       </main>
 
       {toast && (
