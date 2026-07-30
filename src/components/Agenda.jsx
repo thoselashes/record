@@ -12,7 +12,7 @@ export default function Agenda({ onSelect }) {
 
   const today = new Date().toISOString().slice(0, 10);
 
-  const { dateList, groups, todayIdx } = useMemo(() => {
+  const { dateList, groups } = useMemo(() => {
     const map = {};
     for (const a of appointments) {
       if (!map[a.date]) map[a.date] = [];
@@ -23,18 +23,18 @@ export default function Agenda({ onSelect }) {
     for (const [date, apps] of Object.entries(map)) {
       sorted[date] = [...apps].sort((a, b) => a.timeMinutes - b.timeMinutes);
     }
-    return { dateList: dates, groups: sorted, todayIdx: dates.indexOf(today) };
+    return { dateList: dates, groups: sorted };
   }, [appointments]);
 
-  // Reset to today whenever appointments data changes (e.g. tab switch triggers re-render)
   useEffect(() => {
-    setDayIdx(todayIdx >= 0 ? todayIdx : 0);
-  }, [appointments, todayIdx]);
+    if (dateList.length) {
+      const idx = dateList.indexOf(today);
+      setDayIdx(idx >= 0 ? idx : 0);
+    }
+  }, [dateList]);
 
   const currentDate = dateList[dayIdx];
   const apps = currentDate ? groups[currentDate] : [];
-  const isToday = currentDate === today;
-  const todayHasApps = todayIdx >= 0 && groups[today] && groups[today].length > 0;
 
   return (
     <section>

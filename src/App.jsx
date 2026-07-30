@@ -8,7 +8,6 @@ export default function App() {
   const { fetchAppointments, toast, clearToast } = useStore();
   const [selectedId, setSelectedId] = useState(null);
   const [tab, setTab] = useState("agenda");
-  const [todayReset, setTodayReset] = useState(0);
 
   useEffect(() => {
     fetchAppointments();
@@ -55,7 +54,7 @@ export default function App() {
         </div>
       </header>
       <main className="md:max-w-[600px] mx-auto px-4 py-4">
-        {tab === "agenda" && <Agenda onSelect={setSelectedId} todayReset={todayReset} setTodayReset={setTodayReset} />}
+        {tab === "agenda" && <Agenda onSelect={setSelectedId} />}
         {tab === "records" && <Records onSelect={setSelectedId} />}
         <Detail selectedId={selectedId} onClose={() => setSelectedId(null)} />
       </main>
