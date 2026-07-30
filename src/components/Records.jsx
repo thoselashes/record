@@ -92,7 +92,8 @@ export default function Records({ onSelect }) {
             meta: dayMeta[date] || { amount: 0, submitted: 0, total: 0 },
           }))
           .filter((d) => d.records.length > 0),
-      }));
+      }))
+      .filter((w) => w.days.length > 0);
 
     return { groups, yearTotal, yearCount, monthTotal, monthCount };
   }, [appointments]);
@@ -164,12 +165,12 @@ export default function Records({ onSelect }) {
                             ${dayMeta.amount.toFixed(2)} ({dayMeta.submitted}/{dayMeta.total})
                           </span>
                         </div>
-                        <div className="space-y-1.5">
+                        <div className="bg-[#fbecf5] rounded-lg border border-[#cfad5d]/30 px-3 py-2 space-y-1.5">
                           {records.map((r) => (
                             <div
                               key={r.id}
                               onClick={() => onSelect?.(r.id)}
-                              className="bg-[#fbecf5] rounded-lg border border-[#cfad5d]/30 px-3 py-2 cursor-pointer hover:border-[#cfad5d]/60 transition flex items-center gap-3"
+                              className="bg-white rounded-lg border border-[#cfad5d]/30 px-3 py-2 cursor-pointer hover:border-[#cfad5d]/60 transition flex items-center gap-3"
                             >
                               <span className="text-sm text-gray-500 shrink-0 w-12 tabular-nums">{minutesToTime(r.timeMinutes)}</span>
                               <span className="text-sm font-display font-medium text-gray-900 shrink-0 min-w-0 truncate flex-1">{r.customerName}</span>
