@@ -9,36 +9,40 @@ function firstName(name) {
 export default function Agenda({ onSelect, forceToday }) {
   const { appointments } = useStore();
   const [dayIdx, setDayIdx] = useState(0);
-  const [showPicker, setShowPicker] = useState(false);
 
-  const { dateList, groups } = useMemo(() => {
-    const map = {};
-    for (const a of appointments) {
-      if (!map[a.date]) map[a.date] = [];
-      map[a.date].push(a);
-    }
-    const dates = Object.keys(map).sort();
-    const sorted = {};
-    for (const [date, apps] of Object.entries(map)) {
-      sorted[date] = [...apps].sort((a, b) => a.timeMinutes - b.timeMinutes);
-    }
-    return { dateList: dates, groups: sorted };
+  const sortedDates = useMemo(() => {
+    const set = new Set();
+    for (const a of appointments) set.add(a.date);
+    return [...set].sort();
   }, [appointments]);
+
+  // Generate a range from the earliest to the latest appointment, so every day is navigable
+  const allDays = useMemo(() => {
+    if (sortedDates.length === 0) return [];
+    const start = new Date(sortedDates[0]);
+    const end = new Date(sortedDates[sortedDates.length - 1]);
+    const days = [];
+    const cur = new Date(start);
+    while (cur <= end) {
+      days.push(cur.toISOString().slice(0, 10));
+      cur.setDate(cur.getDate() + 1);
+    }
+    return days;
+  }, [sortedDates]);
 
   useEffect(() => {
     const today = new Date().toISOString().slice(0, 10);
-    const idx = dateList.indexOf(today);
-    setDayIdx(idx);
-  }, [forceToday, dateList]);
+    const idx = allDays.indexOf(today);
+    setDayIdx(idx >= 0 ? idx : 0);
+  }, [forceToday, allDays]);
 
-  // Clamp dayIdx when dateList shrinks (e.g. delete last record on a day)
-  useEffect(() => {
-    setDayIdx((prev) => Math.max(0, Math.min(prev, dateList.length - 1)));
-  }, [dateList.length]);
+  const currentDate = allDays[dayIdx] ?? null;
+  const apps = currentDate ? (appointments.filter((a) => a.date === currentDate).sort((a, b) => a.timeMinutes - b.timeMinutes)) : [];
 
-  const currentDate = dateList[dayIdx] ?? null;
-  const apps = currentDate ? (groups[currentDate] || []) : [];
-  const hasRecords = dateList.length > 0;
+  const handleDateSelect = (e) => {
+    const idx = allDays.indexOf(e.target.value);
+    if (idx >= 0) setDayIdx(idx);
+  };
 
   return (
     <section>
@@ -51,45 +55,28 @@ export default function Agenda({ onSelect, forceToday }) {
         >
           ← Prev
         </button>
-        <button
-          type="button"
-          onClick={() => setShowPicker(!showPicker)}
-          className="text-sm font-semibold text-gray-700 hover:text-[#c7006a] transition"
-        >
-          {currentDate ? formatDate(currentDate) : "No date"}
-        </button>
+        <input
+          type="date"
+          value={currentDate ?? ""}
+          onChange={handleDateSelect}
+          className="text-sm font-semibold text-gray-700 bg-transparent border-none outline-none cursor-pointer hover:text-[#c7006a] transition"
+          style={{ width: "auto" }}
+        />
         <button
           type="button"
           onClick={() => setDayIdx(dayIdx + 1)}
-          disabled={dayIdx >= dateList.length - 1}
+          disabled={dayIdx >= allDays.length - 1}
           className="px-3 py-1.5 text-sm font-medium rounded-lg border border-[#cfad5d]/20 bg-white text-[#c7006a] hover:bg-[#fad5da]/60 disabled:opacity-30 disabled:cursor-not-allowed transition"
         >
           Next →
         </button>
       </div>
 
-      {showPicker && (
-        <div className="mb-4 flex justify-center">
-          <input
-            type="date"
-            value={currentDate ?? ""}
-            onChange={(e) => {
-              const idx = dateList.indexOf(e.target.value);
-              if (idx >= 0) setDayIdx(idx);
-              setShowPicker(false);
-            }}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-      )}
-
-      {!hasRecords && <p className="text-gray-400 text-sm">No appointments.</p>}
-
-      {hasRecords && apps.length === 0 && (
+      {allDays.length === 0 ? (
+        <p className="text-gray-400 text-sm">No appointments.</p>
+      ) : apps.length === 0 ? (
         <p className="text-gray-400 text-sm">No appointments on this day.</p>
-      )}
-
-      {hasRecords && apps.length > 0 && (
+      ) : (
         <AppointmentList apps={apps} onSelect={onSelect} />
       )}
     </section>
