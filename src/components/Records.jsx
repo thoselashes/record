@@ -135,11 +135,11 @@ export default function Records({ onSelect }) {
           <div className="mb-4 bg-white rounded-lg border border-gray-200 px-4 py-3 text-sm cursor-pointer hover:border-[#cfad5d]/40 transition" onClick={() => setShowCharts(true)}>
             <div className="font-medium text-green-600">
               This Year: <span className="font-bold">${yearTotal.toFixed(2)}</span>
-              <span className="text-gray-500 font-normal"> &nbsp;| {yearCount} appointment{yearCount !== 1 ? "s" : ""}</span>
+              <span className="text-gray-500 font-normal"> &nbsp;| {yearCount} appt{yearCount !== 1 ? "s" : ""}</span>
             </div>
             <div className="font-medium text-green-600 mt-0.5">
               Total in {monthName(new Date().toISOString().slice(0, 7))}: <span className="font-bold">${monthTotal.toFixed(2)}</span>
-              <span className="text-gray-500 font-normal"> &nbsp;| {monthCount} appointment{monthCount !== 1 ? "s" : ""}</span>
+              <span className="text-gray-500 font-normal"> &nbsp;| {monthCount} appt{monthCount !== 1 ? "s" : ""}</span>
             </div>
           </div>
 
