@@ -72,6 +72,12 @@ export default function Agenda({ onSelect }) {
     if (idx >= 0) setDayIdx(idx);
   };
 
+  const goToday = () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const idx = allDays.indexOf(today);
+    setDayIdx(idx >= 0 ? idx : 0);
+  };
+
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
@@ -105,6 +111,14 @@ export default function Agenda({ onSelect }) {
           Next →
         </button>
       </div>
+
+      {currentDate !== new Date().toISOString().slice(0, 10) && (
+        <div className="text-center mb-3">
+          <button onClick={() => goToday()} className="text-xs text-[#c7006a] hover:text-[#c7006a]/70 underline underline-offset-2 transition">
+            &larr; Back to today
+          </button>
+        </div>
+      )}
 
       {allDays.length === 0 ? (
         <p className="text-gray-400 text-center">No appointments.</p>

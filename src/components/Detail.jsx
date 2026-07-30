@@ -7,6 +7,7 @@ import TAG_GROUPS from "../constants/tags.json";
 export default function Detail({ selectedId, onClose }) {
   const { appointments, drafts, updateDraft, submitAppointment, deleteAppointment, showToast } = useStore();
   const [deleting, setDeleting] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
   const appointment = appointments.find((a) => a.id === selectedId);
   const draft = selectedId ? drafts[selectedId] || {} : {};
@@ -30,7 +31,16 @@ export default function Detail({ selectedId, onClose }) {
       <div className="bg-white w-full sm:max-w-[560px] sm:rounded-xl rounded-2xl shadow-2xl m-4 mb-8" onClick={(e) => e.stopPropagation()}>
       <section className="p-4">
       <div className="flex items-center justify-between">
-        <h2 className="font-display font-medium text-gray-900">{appointment.customerName}</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="font-display font-medium text-gray-900">{appointment.customerName}</h2>
+          <button
+            type="button"
+            onClick={() => setShowHistory(true)}
+            className="text-xs text-[#c7006a] hover:text-[#c7006a]/70 font-medium px-2 py-0.5 rounded border border-[#cfad5d]/30 bg-white transition"
+          >
+            History
+          </button>
+        </div>
         <button
           onClick={onClose}
           className="text-gray-400 hover:text-gray-600 text-sm"
@@ -43,36 +53,39 @@ export default function Detail({ selectedId, onClose }) {
         {minutesToTime(appointment.timeMinutes)} — {appointment.service}
       </div>
 
+      {showHistory && <HistoryPanel appointments={appointments} current={appointment} onClose={() => setShowHistory(false)} />}
+
       {isSubmitted && (
         <div className="text-xs text-green-600 font-medium mb-3">
           Previously submitted
         </div>
       )}
 
-      {/* QR Section */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Amount $ (optional)
-        </label>
-        <input
-          type="number"
-          step="0.01"
-          min="0"
-          value={draft.amount || ""}
-          onChange={(e) => updateDraft(appointment.id, "amount", e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-          placeholder="0.00"
-        />
-        <div className="mt-3 flex justify-center">
-          <QRCode
-            amount={draft.amount || 0}
-            name={appointment.customerName}
-            phone={appointment.mobileNumber}
-            service={appointment.service}
-            id={appointment.id}
+      {!appointment.submitted && (
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Amount $ (optional)
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            value={draft.amount || ""}
+            onChange={(e) => updateDraft(appointment.id, "amount", e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            placeholder="0.00"
           />
+          <div className="mt-3 flex justify-center">
+            <QRCode
+              amount={draft.amount || 0}
+              name={appointment.customerName}
+              phone={appointment.mobileNumber}
+              service={appointment.service}
+              id={appointment.id}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Tags Section */}
       <div className="mb-4">
@@ -204,6 +217,45 @@ export default function Detail({ selectedId, onClose }) {
       </div>
     </section>
       </div>
+    </div>
+  );
+}
+
+function HistoryPanel({ appointments, current, onClose }) {
+  const history = appointments.filter(
+    (a) => a.mobileNumber && current.mobileNumber && a.mobileNumber === current.mobileNumber && a.id !== current.id
+  ).sort((a, b) => (b.date + String(b.timeMinutes).padStart(5, "0")).localeCompare(a.date + String(a.timeMinutes).padStart(5, "0")));
+
+  return (
+    <div className="mb-3 bg-gray-50 rounded-lg border border-gray-200 p-3 text-sm">
+      <div className="flex items-center justify-between mb-2">
+        <span className="font-medium text-gray-700">Past appointments</span>
+        <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xs">&times;</button>
+      </div>
+      {history.length === 0 ? (
+        <p className="text-gray-400 text-xs">No previous appointments found.</p>
+      ) : (
+        <div className="space-y-2 max-h-48 overflow-y-auto">
+          {history.map((a) => (
+            <div key={a.id} className="flex items-center justify-between bg-white rounded px-2 py-1.5 border border-gray-100">
+              <div>
+                <span className="text-gray-700 font-medium">{a.customerName}</span>
+                <span className="text-gray-400 ml-2 text-xs">
+                  {a.date?.slice(5)} {minutesToTime(a.timeMinutes)} &middot; {a.service}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                {a.submitted && a.amount > 0 && (
+                  <span className="text-green-600 text-xs font-medium">${Number(a.amount).toFixed(2)}</span>
+                )}
+                {a.tags?.length > 0 && (
+                  <span className="text-gray-400 text-xs">{a.tags.slice(0, 2).join(", ")}{a.tags.length > 2 ? "..." : ""}</span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

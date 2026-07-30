@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import useStore from "../store";
 import { sortTags } from "../constants";
 import TAG_GROUPS from "../constants/tags.json";
@@ -6,7 +6,7 @@ import TAG_GROUPS from "../constants/tags.json";
 const SERVICES = ["Eyelash Extensions", "Touchup", "Mani/Pedi", "Lash Lift"];
 
 export default function ManualEntry({ onClose }) {
-  const { createRecord, showToast } = useStore();
+  const { appointments, createRecord, showToast } = useStore();
   const [form, setForm] = useState({
     customerName: "",
     mobileNumber: "",
@@ -58,6 +58,15 @@ export default function ManualEntry({ onClose }) {
 
   const allTags = [...form.tags, ...form.customTags];
 
+  const suggestions = useMemo(() => {
+    const q = form.mobileNumber.replace(/[^0-9]/g, "");
+    if (q.length < 4) return [];
+    return appointments
+      .filter((a) => a.mobileNumber?.replace(/[^0-9]/g, "").includes(q))
+      .filter((a, i, arr) => arr.findIndex((x) => x.mobileNumber === a.mobileNumber) === i)
+      .slice(0, 10);
+  }, [form.mobileNumber, appointments]);
+
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-start sm:items-center justify-center sm:p-4 overflow-y-auto" onClick={onClose}>
       <div className="bg-white w-full sm:max-w-[560px] sm:rounded-xl rounded-t-2xl shadow-2xl m-4 mb-8" onClick={(e) => e.stopPropagation()}>
@@ -77,10 +86,33 @@ export default function ManualEntry({ onClose }) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
-            <input type="tel" value={form.mobileNumber}
-              onChange={(e) => setForm({ ...form, mobileNumber: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="+65 9123 4567" />
+            <div className="relative">
+              <input type="tel" value={form.mobileNumber}
+                onChange={(e) => setForm({ ...form, mobileNumber: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-20"
+                placeholder="+65 9123 4567" />
+              {suggestions.length > 0 && (
+                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                  {suggestions.map((a) => (
+                    <button
+                      key={a.id}
+                      type="button"
+                      onClick={() => {
+                        setForm((f) => ({
+                          ...f,
+                          customerName: a.customerName,
+                          mobileNumber: a.mobileNumber,
+                        }));
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-[#fad5da]/60 transition flex items-center justify-between"
+                    >
+                      <span className="text-gray-900 font-medium">{a.customerName}</span>
+                      <span className="text-gray-400 text-xs">{a.mobileNumber}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div>
