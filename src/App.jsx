@@ -8,7 +8,6 @@ export default function App() {
   const { fetchAppointments, toast, clearToast } = useStore();
   const [selectedId, setSelectedId] = useState(null);
   const [tab, setTab] = useState("agenda");
-  const [todayReset, setTodayReset] = useState(0);
 
   useEffect(() => {
     fetchAppointments();
@@ -30,7 +29,7 @@ export default function App() {
             <nav className="flex gap-1">
               <button
                 type="button"
-                onClick={() => { setTodayReset((v) => v + 1); setTab("agenda"); }}
+                onClick={() => setTab("agenda")}
                 className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${
                   tab === "agenda"
                     ? "bg-[#fad5da] text-[#c7006a] ring-1 ring-[#cfad5d]/40"
@@ -55,8 +54,12 @@ export default function App() {
         </div>
       </header>
       <main className="md:max-w-[600px] mx-auto px-4 py-4">
-        {tab === "agenda" && <Agenda onSelect={setSelectedId} forceToday={todayReset} />}
-        {tab === "records" && <Records onSelect={setSelectedId} />}
+        <div className={tab === "agenda" ? "" : "hidden"}>
+          <Agenda onSelect={setSelectedId} />
+        </div>
+        <div className={tab === "records" ? "" : "hidden"}>
+          <Records onSelect={setSelectedId} />
+        </div>
         <Detail selectedId={selectedId} onClose={() => setSelectedId(null)} />
       </main>
 

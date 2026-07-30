@@ -13,11 +13,7 @@ export async function onRequestDelete(context) {
       });
     }
 
-    const updated = appointments.map((a) =>
-      a.id === id
-        ? { ...a, submitted: false, submittedAt: null, amount: 0, tags: [] }
-        : a
-    );
+    const updated = appointments.filter((a) => a.id !== id);
 
     await context.env.APPOINTMENTS_KV.put("agenda", JSON.stringify(updated));
 

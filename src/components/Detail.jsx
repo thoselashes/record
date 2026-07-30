@@ -187,7 +187,7 @@ export default function Detail({ selectedId, onClose }) {
             }
           }}
           disabled={deleting}
-          className="px-3 bg-white hover:bg-red-50 text-red-600 rounded-lg py-2 text-sm font-medium border border-red-200 transition disabled:opacity-40"
+          className="px-3 bg-red-600 hover:bg-red-700 text-white rounded-lg py-2 text-sm font-medium transition disabled:opacity-40"
         >
           {deleting ? "..." : (
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

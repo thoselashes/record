@@ -2,11 +2,13 @@ import React, { useMemo, useState, useEffect } from "react";
 import useStore from "../store";
 import { minutesToTime, formatDate } from "../constants";
 
+const STORAGE_KEY = "thoselashes-agenda-date";
+
 function firstName(name) {
   return name.split(/[\s-]/)[0];
 }
 
-export default function Agenda({ onSelect, forceToday }) {
+export default function Agenda({ onSelect }) {
   const { appointments } = useStore();
   const [dayIdx, setDayIdx] = useState(0);
 
@@ -16,7 +18,6 @@ export default function Agenda({ onSelect, forceToday }) {
     return [...set].sort();
   }, [appointments]);
 
-  // Generate a range from the earliest to the latest appointment, so every day is navigable
   const allDays = useMemo(() => {
     if (sortedDates.length === 0) return [];
     const start = new Date(sortedDates[0]);
@@ -30,14 +31,41 @@ export default function Agenda({ onSelect, forceToday }) {
     return days;
   }, [sortedDates]);
 
+  // Persist last-viewed date
   useEffect(() => {
+    if (allDays.length === 0) return;
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const idx = allDays.indexOf(saved);
+      if (idx >= 0) {
+        setDayIdx(idx);
+        return;
+      }
+    }
+    // No saved date — default to today
     const today = new Date().toISOString().slice(0, 10);
     const idx = allDays.indexOf(today);
     setDayIdx(idx >= 0 ? idx : 0);
-  }, [forceToday, allDays]);
+  }, [allDays]);
+
+  // Save current date when user navigates
+  useEffect(() => {
+    if (allDays[dayIdx]) {
+      localStorage.setItem(STORAGE_KEY, allDays[dayIdx]);
+    }
+  }, [dayIdx, allDays]);
+
+  // Clamp when allDays shrinks
+  useEffect(() => {
+    setDayIdx((prev) => Math.max(0, Math.min(prev, allDays.length - 1)));
+  }, [allDays.length]);
 
   const currentDate = allDays[dayIdx] ?? null;
-  const apps = currentDate ? (appointments.filter((a) => a.date === currentDate).sort((a, b) => a.timeMinutes - b.timeMinutes)) : [];
+  const apps = currentDate
+    ? appointments
+        .filter((a) => a.date === currentDate)
+        .sort((a, b) => a.timeMinutes - b.timeMinutes)
+    : [];
 
   const handleDateSelect = (e) => {
     const idx = allDays.indexOf(e.target.value);
@@ -55,7 +83,7 @@ export default function Agenda({ onSelect, forceToday }) {
         >
           ← Prev
         </button>
-        <div className="relative inline-block cursor-pointer" onClick={() => document.getElementById('agenda-date-input')?.showPicker?.()}>
+        <div className="relative inline-block cursor-pointer" onClick={() => document.getElementById("agenda-date-input")?.showPicker?.()}>
           <input
             id="agenda-date-input"
             type="date"
