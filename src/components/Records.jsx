@@ -53,13 +53,15 @@ export default function Records({ onSelect }) {
       if (!weeks[ws]) weeks[ws] = {};
       if (!weeks[ws][a.date]) weeks[ws][a.date] = [];
       weeks[ws][a.date].push(a);
+    }
 
+    for (const a of appointments) {
       if (a.date?.startsWith(yearStr)) {
-        yearTotal += Number(a.amount || 0);
+        if (a.submitted) yearTotal += Number(a.amount || 0);
         yearCount++;
       }
       if (a.date?.startsWith(monthStr)) {
-        monthTotal += Number(a.amount || 0);
+        if (a.submitted) monthTotal += Number(a.amount || 0);
         monthCount++;
       }
     }
