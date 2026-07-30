@@ -172,27 +172,29 @@ export default function Detail({ selectedId, onClose }) {
         >
           {isSubmitted ? "Update" : "Submit"}
         </button>
-        {isSubmitted && (
-          <button
-            onClick={async () => {
-              if (!confirm(`Delete ${appointment.customerName}?`)) return;
-              setDeleting(true);
-              try {
-                await deleteAppointment(appointment.id);
-                showToast("Deleted");
-                onClose();
-              } catch {
-                showToast("Delete failed");
-              } finally {
-                setDeleting(false);
-              }
-            }}
-            disabled={deleting}
-            className="px-4 bg-white hover:bg-[#fad5da]/60 text-[#c7006a] rounded-lg py-2 text-sm font-medium border border-[#cfad5d]/20 transition disabled:opacity-40"
-          >
-            {deleting ? "..." : "Delete"}
-          </button>
-        )}
+        <button
+          onClick={async () => {
+            if (!confirm(`Delete ${appointment.customerName}?`)) return;
+            setDeleting(true);
+            try {
+              await deleteAppointment(appointment.id);
+              showToast("Deleted");
+              onClose();
+            } catch {
+              showToast("Delete failed");
+            } finally {
+              setDeleting(false);
+            }
+          }}
+          disabled={deleting}
+          className="px-3 bg-white hover:bg-red-50 text-red-600 rounded-lg py-2 text-sm font-medium border border-red-200 transition disabled:opacity-40"
+        >
+          {deleting ? "..." : (
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          )}
+        </button>
         <button
           onClick={onClose}
           className="flex-1 bg-white hover:bg-[#fad5da]/60 text-[#c7006a] rounded-lg py-2 text-sm font-medium border border-[#cfad5d]/20 transition"

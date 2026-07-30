@@ -79,9 +79,9 @@ export default function Agenda({ onSelect, forceToday }) {
       </div>
 
       {allDays.length === 0 ? (
-        <p className="text-gray-400 text-sm">No appointments.</p>
+        <p className="text-gray-400 text-center">No appointments.</p>
       ) : apps.length === 0 ? (
-        <p className="text-gray-400 text-sm">No appointments on this day.</p>
+        <p className="text-gray-400 text-center">No appointments on this day.</p>
       ) : (
         <AppointmentList apps={apps} onSelect={onSelect} />
       )}
