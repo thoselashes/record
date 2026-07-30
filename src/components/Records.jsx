@@ -1,7 +1,25 @@
 import React, { useMemo, useState } from "react";
 import useStore from "../store";
-import { minutesToTime, formatDate as fmt } from "../constants";
+import { minutesToTime } from "../constants";
 import ManualEntry from "./ManualEntry";
+
+function weekStart(dateStr) {
+  const d = new Date(dateStr + "T00:00:00");
+  const diff = d.getDate() - ((d.getDay() + 6) % 7);
+  d.setDate(diff);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
+function dayLabel(dateStr) {
+  const d = new Date(dateStr + "T00:00:00");
+  const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}`;
+}
+
+function monthName(iso) {
+  return new Date(iso + "-01T00:00:00").toLocaleString("default", { month: "long" });
+}
 
 export default function Records({ onSelect }) {
   const { appointments, showToast } = useStore();
@@ -19,6 +37,42 @@ export default function Records({ onSelect }) {
         }),
     [appointments]
   );
+
+  const { groups, yearTotal, yearCount, monthTotal, monthCount } = useMemo(() => {
+    const now = new Date();
+    const yearStr = String(now.getFullYear());
+    const monthStr = now.toISOString().slice(0, 7);
+
+    let yearTotal = 0, yearCount = 0, monthTotal = 0, monthCount = 0;
+
+    const weeks = {};
+    for (const a of sorted) {
+      const ws = weekStart(a.date);
+      if (!weeks[ws]) weeks[ws] = {};
+      if (!weeks[ws][a.date]) weeks[ws][a.date] = [];
+      weeks[ws][a.date].push(a);
+
+      if (a.date?.startsWith(yearStr)) {
+        yearTotal += Number(a.amount || 0);
+        yearCount++;
+      }
+      if (a.date?.startsWith(monthStr)) {
+        monthTotal += Number(a.amount || 0);
+        monthCount++;
+      }
+    }
+
+    const groups = Object.entries(weeks)
+      .sort(([a], [b]) => b.localeCompare(a))
+      .map(([ws, days]) => ({
+        weekStart: ws,
+        days: Object.entries(days)
+          .sort(([a], [b]) => b.localeCompare(a))
+          .map(([date, records]) => ({ date, records })),
+      }));
+
+    return { groups, yearTotal, yearCount, monthTotal, monthCount };
+  }, [sorted]);
 
   const handleDelete = async (id, e) => {
     e.stopPropagation();
@@ -49,97 +103,78 @@ export default function Records({ onSelect }) {
         </button>
       </div>
 
-      {sorted.length === 0 && (
+      {sorted.length === 0 ? (
         <p className="text-gray-400 text-sm">No submitted records yet.</p>
-      )}
-
-      {sorted.length > 0 && (
-        <div className="hidden sm:block overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-200 text-gray-500 text-left">
-                <th className="pb-2 pr-3 font-medium">Date</th>
-                <th className="pb-2 pr-3 font-medium">Time</th>
-                <th className="pb-2 pr-3 font-medium">Customer</th>
-                <th className="pb-2 pr-3 font-medium">Service</th>
-                <th className="pb-2 pr-3 font-medium text-right">Amount</th>
-                <th className="pb-2 font-medium">Tags</th>
-                <th className="pb-2 font-medium text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sorted.map((r) => (
-                <tr
-                  key={r.id}
-                  onClick={() => onSelect?.(r.id)}
-                  className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
-                >
-                  <td className="py-2.5 pr-3 text-gray-700 whitespace-nowrap">{fmt(r.date)}</td>
-                  <td className="py-2.5 pr-3 text-gray-700 whitespace-nowrap">{minutesToTime(r.timeMinutes)}</td>
-                  <td className="py-2.5 pr-3 text-gray-900 font-display font-medium whitespace-nowrap">{r.customerName}</td>
-                  <td className="py-2.5 pr-3 text-gray-600">{r.service}</td>
-                  <td className="py-2.5 pr-3 text-gray-700 text-right whitespace-nowrap">${Number(r.amount).toFixed(2)}</td>
-                  <td className="py-2.5 text-gray-500 max-w-[200px] truncate">
-                    {r.tags?.length ? r.tags.join(", ") : "—"}
-                  </td>
-                  <td className="py-2.5 text-right">
-                    <button
-                      onClick={(e) => handleDelete(r.id, e)}
-                      disabled={deleting === r.id}
-                      className="bg-red-600 hover:bg-red-700 text-white text-sm font-medium disabled:opacity-40 px-2 py-1 rounded"
-                    >
-                      {deleting === r.id ? "..." : (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      )}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {sorted.length > 0 && (
-        <div className="sm:hidden space-y-3">
-          {sorted.map((r) => (
-            <div
-              key={r.id}
-              onClick={() => onSelect?.(r.id)}
-              className="bg-white border border-gray-200 rounded-lg px-4 py-3 cursor-pointer hover:border-gray-300 transition"
-            >
-              <div className="flex justify-between items-start mb-1">
-                <span className="text-sm font-display font-medium text-gray-900">{r.customerName}</span>
-                <span className="text-sm text-gray-600 font-medium">${Number(r.amount).toFixed(2)}</span>
-              </div>
-              <div className="text-xs text-gray-500 mb-1">
-                {fmt(r.date)} · {minutesToTime(r.timeMinutes)} · {r.service}
-              </div>
-              {r.tags?.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-1.5">
-                  {r.tags.map((t) => (
-                    <span key={t} className="px-1.5 py-0.5 bg-gray-100 rounded text-xs text-gray-600">{t}</span>
-                  ))}
-                </div>
-              )}
-              <div className="flex justify-end mt-2">
-                <button
-                  onClick={(e) => handleDelete(r.id, e)}
-                  disabled={deleting === r.id}
-                  className="bg-red-600 hover:bg-red-700 text-white text-xs font-medium disabled:opacity-40 px-2 py-1 rounded"
-                >
-                  {deleting === r.id ? "..." : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  )}
-                </button>
-              </div>
+      ) : (
+        <>
+          {/* Dashboard */}
+          <div className="mb-4 bg-white rounded-lg border border-gray-200 px-4 py-3 text-sm">
+            <div className="font-medium text-green-600">
+              Cumulative Total This Year: <span className="font-bold">${yearTotal.toFixed(2)}</span>
+              <span className="text-gray-500 font-normal"> &nbsp;| {yearCount} appointment{yearCount !== 1 ? "s" : ""}</span>
             </div>
-          ))}
-        </div>
+            <div className="font-medium text-green-600 mt-0.5">
+              Total in {monthName(new Date().toISOString().slice(0, 7))}: <span className="font-bold">${monthTotal.toFixed(2)}</span>
+              <span className="text-gray-500 font-normal"> &nbsp;| {monthCount} appointment{monthCount !== 1 ? "s" : ""}</span>
+            </div>
+          </div>
+
+          {/* Grouped records */}
+          <div className="space-y-6">
+            {groups.map(({ weekStart: ws, days }) => {
+              const allRecords = days.flatMap((d) => d.records);
+              const weekSum = allRecords.reduce((s, r) => s + Number(r.amount || 0), 0);
+              const weekSubmitted = allRecords.filter((r) => r.submitted).length;
+              return (
+                <div key={ws}>
+                  <div className="flex items-baseline justify-between mb-2 pb-1 border-b border-gray-200">
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      Week of {dayLabel(ws)}
+                    </span>
+                    <span className="text-xs text-green-600 font-semibold">
+                      ${weekSum.toFixed(2)} ({weekSubmitted}/{allRecords.length})
+                    </span>
+                  </div>
+                  <div className="space-y-4">
+                    {days.map(({ date, records }) => (
+                      <div key={date}>
+                        <div className="text-xs font-medium text-gray-400 mb-1 ml-1">{dayLabel(date)}</div>
+                        <div className="space-y-1.5">
+                          {records.map((r) => (
+                            <div
+                              key={r.id}
+                              onClick={() => onSelect?.(r.id)}
+                              className="bg-white rounded-lg border border-gray-100 px-3 py-2 cursor-pointer hover:border-gray-200 hover:shadow-sm transition flex items-center gap-3"
+                            >
+                              <span className="text-sm text-gray-500 shrink-0 w-12 tabular-nums">{minutesToTime(r.timeMinutes)}</span>
+                              <span className="text-sm font-display font-medium text-gray-900 shrink-0 min-w-0 truncate flex-1">{r.customerName}</span>
+                              <span className="text-xs text-[#c7006a] italic truncate hidden sm:block max-w-[120px]">{r.service}</span>
+                              <span className="text-sm text-gray-700 font-medium shrink-0">${Number(r.amount).toFixed(2)}</span>
+                              {r.tags?.length > 0 && (
+                                <span className="hidden sm:inline text-xs text-gray-400 truncate max-w-[100px]">{r.tags.slice(0, 2).join(", ")}{r.tags.length > 2 ? "…" : ""}</span>
+                              )}
+                              <button
+                                onClick={(e) => handleDelete(r.id, e)}
+                                disabled={deleting === r.id}
+                                className="shrink-0 bg-red-600 hover:bg-red-700 text-white text-xs font-medium disabled:opacity-40 px-1.5 py-1 rounded"
+                              >
+                                {deleting === r.id ? "…" : (
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                )}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
 
       {showEntry && <ManualEntry onClose={() => setShowEntry(false)} />}

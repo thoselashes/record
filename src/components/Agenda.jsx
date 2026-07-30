@@ -8,6 +8,18 @@ function firstName(name) {
   return name.split(/[\s-]/)[0];
 }
 
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
+function weekMonday() {
+  const d = new Date();
+  const diff = d.getDate() - ((d.getDay() + 6) % 7);
+  d.setDate(diff);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
 export default function Agenda({ onSelect }) {
   const { appointments } = useStore();
   const [dayIdx, setDayIdx] = useState(0);
@@ -77,10 +89,23 @@ export default function Agenda({ onSelect }) {
     setDayIdx(idx >= 0 ? idx : 0);
   };
 
-  function todayStr() {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-  }
+  const todayMetrics = useMemo(() => {
+    const day = todayStr();
+    const week = weekMonday();
+    const weekEnd = new Date(week + "T00:00:00");
+    weekEnd.setDate(weekEnd.getDate() + 7);
+    const weekEndStr = weekEnd.toISOString().slice(0, 10);
+
+    const dayApps = appointments.filter((a) => a.date === day);
+    const daySubmitted = dayApps.filter((a) => a.submitted);
+    const dayTotal = daySubmitted.reduce((s, a) => s + Number(a.amount || 0), 0);
+
+    const weekApps = appointments.filter((a) => a.date >= week && a.date < weekEndStr);
+    const weekSubmitted = weekApps.filter((a) => a.submitted);
+    const weekTotal = weekSubmitted.reduce((s, a) => s + Number(a.amount || 0), 0);
+
+    return { dayTotal, daySubmitted: daySubmitted.length, dayTotalApps: dayApps.length, weekTotal, weekSubmitted: weekSubmitted.length, weekTotalApps: weekApps.length };
+  }, [appointments]);
 
   return (
     <section>
@@ -119,7 +144,7 @@ export default function Agenda({ onSelect }) {
       {currentDate && currentDate !== todayStr() && (
         <div className="text-center mb-3">
           <button onClick={() => goToday()} className="text-xs text-[#c7006a] hover:text-[#c7006a]/70 underline underline-offset-2 transition">
-            &larr; Back to today
+            Back to today
           </button>
         </div>
       )}
@@ -131,6 +156,17 @@ export default function Agenda({ onSelect }) {
       ) : (
         <AppointmentList apps={apps} onSelect={onSelect} />
       )}
+
+      <div className="mt-4 pt-3 border-t border-gray-200 text-sm text-green-600">
+        <div>
+          Total Collected Today: <span className="font-bold">${todayMetrics.dayTotal.toFixed(2)}</span>
+          <span className="text-green-500"> &nbsp;({todayMetrics.daySubmitted}/{todayMetrics.dayTotalApps})</span>
+        </div>
+        <div className="font-bold mt-0.5">
+          This Week: <span className="font-bold">${todayMetrics.weekTotal.toFixed(2)}</span>
+          <span className="text-green-500 font-normal"> &nbsp;({todayMetrics.weekSubmitted}/{todayMetrics.weekTotalApps})</span>
+        </div>
+      </div>
     </section>
   );
 }

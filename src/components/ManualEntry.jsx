@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import useStore from "../store";
 import { sortTags } from "../constants";
 import TAG_GROUPS from "../constants/tags.json";
@@ -60,14 +60,21 @@ export default function ManualEntry({ onClose }) {
 
   const allTags = [...form.tags, ...form.customTags];
 
-  const suggestions = useMemo(() => {
+  const suggestions = (() => {
     const q = form.mobileNumber.replace(/[^0-9]/g, "");
     if (q.length < 4) return [];
-    return appointments
-      .filter((a) => a.mobileNumber?.replace(/[^0-9]/g, "").includes(q))
-      .filter((a, i, arr) => arr.findIndex((x) => x.mobileNumber === a.mobileNumber) === i)
-      .slice(0, 10);
-  }, [form.mobileNumber, appointments]);
+    const seen = new Set();
+    const results = [];
+    for (const a of appointments) {
+      const num = a.mobileNumber?.replace(/[^0-9]/g, "");
+      if (!num || !num.includes(q)) continue;
+      if (seen.has(num)) continue;
+      seen.add(num);
+      results.push(a);
+      if (results.length >= 10) break;
+    }
+    return results;
+  })();
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-start sm:items-center justify-center sm:p-4 overflow-y-auto" onClick={onClose}>
