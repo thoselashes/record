@@ -2,8 +2,6 @@ import React, { useMemo, useState, useEffect } from "react";
 import useStore from "../store";
 import { minutesToTime, formatDate } from "../constants";
 
-const STORAGE_KEY = "thoselashes-agenda-date";
-
 function firstName(name) {
   return name.split(/[\s-]/)[0];
 }
@@ -43,29 +41,13 @@ export default function Agenda({ onSelect }) {
     return days;
   }, [sortedDates]);
 
-  // Persist last-viewed date
+  // On refresh, always go to today
   useEffect(() => {
     if (allDays.length === 0) return;
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const idx = allDays.indexOf(saved);
-      if (idx >= 0) {
-        setDayIdx(idx);
-        return;
-      }
-    }
-    // No saved date — default to today
-    const today = new Date().toISOString().slice(0, 10);
+    const today = todayStr();
     const idx = allDays.indexOf(today);
     setDayIdx(idx >= 0 ? idx : 0);
   }, [allDays]);
-
-  // Save current date when user navigates
-  useEffect(() => {
-    if (allDays[dayIdx]) {
-      localStorage.setItem(STORAGE_KEY, allDays[dayIdx]);
-    }
-  }, [dayIdx, allDays]);
 
   // Clamp when allDays shrinks
   useEffect(() => {
@@ -102,7 +84,7 @@ export default function Agenda({ onSelect }) {
     const weekStart = weekMonday(currentDate);
     const weekEnd = new Date(weekStart + "T00:00:00");
     weekEnd.setDate(weekEnd.getDate() + 7);
-    const weekEndStr = weekEnd.toISOString().slice(0, 10);
+    const weekEndStr = `${weekEnd.getFullYear()}-${String(weekEnd.getMonth()+1).padStart(2,"0")}-${String(weekEnd.getDate()).padStart(2,"0")}`;
     const weekApps = appointments.filter((a) => a.date >= weekStart && a.date < weekEndStr);
     const weekSubmitted = weekApps.filter((a) => a.submitted);
     const weekTotal = weekSubmitted.reduce((s, a) => s + Number(a.amount || 0), 0);
