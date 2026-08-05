@@ -1,0 +1,6 @@
+C:\Projects\thoselashes-admin\handoff.md
+C:\Projects\thoselashes-admin\index.html
+C:\Projects\thoselashes-admin\public\icon-192.png
+C:\Projects\thoselashes-admin\public\icon-512.png
+C:\Projects\thoselashes-admin\public\thoselashes-logo.png
+C:\Projects\thoselashes-admin\thoselashes-logo.png

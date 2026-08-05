@@ -18,7 +18,7 @@ function weekMonday(dateStr) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 }
 
-export default function Agenda({ onSelect }) {
+export default function Agenda({ onSelect, todaySignal }) {
   const { appointments } = useStore();
   const [dayIdx, setDayIdx] = useState(0);
 
@@ -48,6 +48,14 @@ export default function Agenda({ onSelect }) {
     const idx = allDays.indexOf(today);
     setDayIdx(idx >= 0 ? idx : 0);
   }, [allDays]);
+
+  // Reset to today when logo is clicked
+  useEffect(() => {
+    if (allDays.length === 0) return;
+    const today = todayStr();
+    const idx = allDays.indexOf(today);
+    setDayIdx(idx >= 0 ? idx : 0);
+  }, [todaySignal]);
 
   // Clamp when allDays shrinks
   useEffect(() => {
@@ -125,7 +133,11 @@ export default function Agenda({ onSelect }) {
         </button>
       </div>
 
-      {currentDate && currentDate !== todayStr() ? (
+      {currentDate && currentDate === todayStr() ? (
+        <div className="text-center mb-3 mt-2">
+          <span className="text-xs text-gray-400">(Today)</span>
+        </div>
+      ) : currentDate ? (
         <div className="text-center mb-3 mt-2">
           <button onClick={() => goToday()} className="text-xs text-[#c7006a] hover:text-[#c7006a]/70 underline underline-offset-2 transition">
             Back to today
@@ -143,7 +155,7 @@ export default function Agenda({ onSelect }) {
 
       <div className="mt-4 pt-3 border-t border-gray-200 text-sm text-green-600">
         <div>
-          Total Collected: <span className="font-bold">${dayMetrics.dayTotal.toFixed(2)}</span>
+          Collected today: <span className="font-bold">${dayMetrics.dayTotal.toFixed(2)}</span>
           <span className="text-green-500"> &nbsp;({dayMetrics.daySubmitted}/{dayMetrics.dayTotalApps})</span>
         </div>
         <div className="font-bold mt-0.5">

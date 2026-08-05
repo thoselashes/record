@@ -8,6 +8,7 @@ export default function App() {
   const { fetchAppointments, clearDraft, toast, clearToast } = useStore();
   const [selectedId, setSelectedId] = useState(null);
   const [tab, setTab] = useState(() => localStorage.getItem("thoselashes-tab") || "agenda");
+  const [todaySignal, setTodaySignal] = useState(0);
 
   useEffect(() => {
     fetchAppointments();
@@ -29,7 +30,12 @@ export default function App() {
       <header className="bg-[#fbecf5] shadow-sm h-[min(10vh,150px)]">
         <div className="px-4 h-full md:max-w-[600px] mx-auto">
           <div className="flex items-center justify-between h-full">
-            <img src="/thoselashes-logo.png" alt="Thoselashes" className="h-full max-h-full w-auto object-contain py-2" />
+            <img
+        src="/thoselashes-logo.png"
+        alt="Thoselashes"
+        className="h-full max-h-full w-auto object-contain py-2 cursor-pointer"
+        onClick={() => { setTab("agenda"); setTodaySignal((s) => s + 1); }}
+      />
             <nav className="flex gap-1">
               <button
                 type="button"
@@ -59,7 +65,7 @@ export default function App() {
       </header>
       <main className="md:max-w-[600px] mx-auto px-4 py-4">
         <div className={tab === "agenda" ? "" : "hidden"}>
-          <Agenda onSelect={setSelectedId} />
+          <Agenda onSelect={setSelectedId} todaySignal={todaySignal} />
         </div>
         <div className={tab === "records" ? "" : "hidden"}>
           <Records onSelect={setSelectedId} />
