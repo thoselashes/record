@@ -31,7 +31,7 @@ export async function onRequestPost(context) {
     await context.env.APPOINTMENTS_KV.put("agenda", JSON.stringify(appointments));
 
     const gsRes = await fetch(
-      "https://script.google.com/macros/s/AKfycbzGcvuD5_9JrIlizn6jALo96Iy3nTRzRDg3cT_d5jfd1KlaFnP4SpWMCqsZftKf-CRrIg/exec",
+      "https://script.google.com/macros/s/AKfycbx4-VkZ5eO6Z1ew8se1i7IASlbAfldQGpz5txsiTXz334L9jx3MBnqy94Lt3PLT24ZWag/exec",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

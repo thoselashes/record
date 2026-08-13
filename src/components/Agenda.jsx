@@ -41,13 +41,15 @@ export default function Agenda({ onSelect, todaySignal }) {
     return days;
   }, [sortedDates]);
 
-  // On refresh, always go to today
+  // On initial load, go to today. Runs once — later appointment changes
+  // (e.g. record submission refetch) must NOT snap back to today.
   useEffect(() => {
     if (allDays.length === 0) return;
     const today = todayStr();
     const idx = allDays.indexOf(today);
     setDayIdx(idx >= 0 ? idx : 0);
-  }, [allDays]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Reset to today when logo is clicked
   useEffect(() => {
