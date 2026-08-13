@@ -13,15 +13,21 @@ export async function onRequestDelete(context) {
       });
     }
 
-    const updated = appointments.filter((a) => a.id !== id);
+    // Clear the submission, not the appointment: reset to unsubmitted and
+    // wipe the record fields, keeping the appointment itself.
+    const updated = appointments.map((a) =>
+      a.id === id
+        ? { ...a, submitted: false, submittedAt: null, amount: 0, tags: [] }
+        : a
+    );
 
     await context.env.APPOINTMENTS_KV.put("agenda", JSON.stringify(updated));
 
-    // Delete from Google Sheets
+    // Remove the record row from Google Sheets (undo the submission)
     let gsOk = false;
     try {
       const gsRes = await fetch(
-        "https://script.google.com/macros/s/AKfycbzGcvuD5_9JrIlizn6jALo96Iy3nTRzRDg3cT_d5jfd1KlaFnP4SpWMCqsZftKf-CRrIg/exec",
+        "https://script.google.com/macros/s/AKfycbx4-VkZ5eO6Z1ew8se1i7IASlbAfldQGpz5txsiTXz334L9jx3MBnqy94Lt3PLT24ZWag/exec",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
