@@ -49,10 +49,8 @@ const useStore = create((set, get) => ({
 
     if (!res.ok) throw new Error("Submission failed");
 
-    const updatedDrafts = { ...drafts };
-    delete updatedDrafts[id];
-    saveItem(DRAFTS_KEY, updatedDrafts);
-    set({ drafts: updatedDrafts });
+    // Draft is already cleared by the caller's onClose() before submit runs,
+    // so there's nothing to clear here.
 
     await get().fetchAppointments();
   },
