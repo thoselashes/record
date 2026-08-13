@@ -179,10 +179,15 @@ export default function Detail({ selectedId, onClose }) {
       <div className="flex gap-3 pt-3 border-t border-gray-100">
         <button
           onClick={() => {
-            onClose();
-            submitAppointment(appointment.id)
-              .then(() => showToast(isSubmitted ? "Updated" : "Submitted"))
-              .catch(() => showToast("Submission failed"));
+            console.log("[Detail] submit clicked, isSubmitted=%s id=%s", isSubmitted, appointment.id);
+            try {
+              onClose();
+              submitAppointment(appointment.id)
+                .then(() => showToast(isSubmitted ? "Updated" : "Submitted"))
+                .catch(() => showToast("Submission failed"));
+            } catch (e) {
+              console.error("[Detail] submit threw:", e);
+            }
           }}
           className="flex-1 bg-[#c7006a] hover:bg-[#c7006a]/80 text-white rounded-lg py-2 text-sm font-medium transition"
         >
