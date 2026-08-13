@@ -27,6 +27,8 @@ export default function ManualEntry({ onClose }) {
       return;
     }
     const [h, m] = form.time.split(":").map(Number);
+    const sendAmount = form.amount || 0;
+    console.log("[ManualEntry] form.amount=%j -> sending amount=%j (num=%j)", form.amount, sendAmount, Number(sendAmount));
     try {
       await createRecord({
         customerName: form.customerName.trim(),
@@ -34,7 +36,7 @@ export default function ManualEntry({ onClose }) {
         service: form.service,
         date: form.date,
         timeMinutes: h * 60 + m,
-        amount: form.amount || 0,
+        amount: sendAmount,
         tags: sortTags([...form.tags, ...form.customTags]),
       });
       showToast("Record created");

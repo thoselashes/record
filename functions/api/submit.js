@@ -4,6 +4,7 @@ export async function onRequestPost(context) {
   try {
     const body = await context.request.json();
     const { id, timeMinutes, service, customerName, mobileNumber, email, amount, tags, customTags } = body;
+    console.log("[submit] received id=%s amount=%j (type=%s)", id, amount, typeof amount);
 
     const allTags = [...(tags || []), ...(customTags || [])];
     const fullNumber = mobileNumber && !mobileNumber.startsWith("+")
@@ -19,6 +20,7 @@ export async function onRequestPost(context) {
         ? { ...a, submitted: true, submittedAt, amount: Number(amount || 0), tags: allTags }
         : a
     );
+    console.log("[submit] KV write amount=%j", Number(amount || 0));
     await context.env.APPOINTMENTS_KV.put("agenda", JSON.stringify(updated));
 
     // 2. GS sync in background — does not block response
@@ -59,6 +61,7 @@ async function syncToGS({ id, date, timeMinutes, customerName, service, amount, 
         }),
       }
     );
+    console.log("[submit] GAS sync sent amount=%j", Number(amount || 0));
   } catch (e) {
     // Data is safe in KV — GS sync can retry later
     console.error("GS sync failed:", e);

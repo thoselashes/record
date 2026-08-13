@@ -61,6 +61,7 @@ const useStore = create((set, get) => ({
   },
 
   createRecord: async (data) => {
+    console.log("[createRecord] sending amount=%j (raw=%j)", Number(data.amount || 0), data.amount);
     const res = await fetch("/api/records", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

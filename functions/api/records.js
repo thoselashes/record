@@ -4,6 +4,7 @@ export async function onRequestPost(context) {
   try {
     const body = await context.request.json();
     const { customerName, mobileNumber, service, date, timeMinutes, amount, tags } = body;
+    console.log("[records] received amount=%j (type=%s)", amount, typeof amount);
 
     const id = crypto.randomUUID().replace(/-/g, "").slice(0, 12);
     const allTags = tags || [];
@@ -28,6 +29,7 @@ export async function onRequestPost(context) {
       amount: Number(amount || 0),
       tags: allTags,
     });
+    console.log("[records] KV write amount=%j", Number(amount || 0));
     await context.env.APPOINTMENTS_KV.put("agenda", JSON.stringify(appointments));
 
     const gsRes = await fetch(
@@ -48,6 +50,7 @@ export async function onRequestPost(context) {
         }),
       }
     );
+    console.log("[records] GAS sync sent amount=%j", Number(amount || 0));
 
     const gsBody = await gsRes.text();
     let gsOk = false;
