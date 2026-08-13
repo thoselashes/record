@@ -73,6 +73,8 @@ export default function App() {
         <Detail selectedId={selectedId} onClose={() => { clearDraft(selectedId); setSelectedId(null); }} />
       </main>
 
+      <footer className="text-center text-[10px] text-gray-400 py-3">v{__APP_VERSION__}</footer>
+
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white px-5 py-2.5 rounded-lg text-sm font-medium shadow-lg transition">
           {toast}
