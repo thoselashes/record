@@ -179,10 +179,13 @@ export default function Detail({ selectedId, onClose }) {
       <div className="flex gap-3 pt-3 border-t border-gray-100">
         <button
           onClick={() => {
-            console.log("[Detail] submit clicked, isSubmitted=%s id=%s", isSubmitted, appointment.id);
+            // Capture draft NOW — onClose() clears it, so we must snapshot
+            // it before calling submit, or submit reads an empty draft.
+            const draftSnapshot = { ...draft };
+            console.log("[Detail] submit clicked isSubmitted=%s id=%s draft.amount=%j", isSubmitted, appointment.id, draftSnapshot.amount);
             try {
               onClose();
-              submitAppointment(appointment.id)
+              submitAppointment(appointment.id, draftSnapshot)
                 .then(() => showToast(isSubmitted ? "Updated" : "Submitted"))
                 .catch(() => showToast("Submission failed"));
             } catch (e) {

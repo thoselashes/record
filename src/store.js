@@ -19,12 +19,15 @@ const useStore = create((set, get) => ({
     }
   },
 
-  submitAppointment: async (id) => {
-    const { appointments, drafts } = get();
+  // `draft` is captured by the caller BEFORE onClose() clears it, so submit
+  // reads the real values instead of the already-cleared (empty) draft.
+  submitAppointment: async (id, draft) => {
+    const { appointments } = get();
     const appointment = appointments.find((a) => a.id === id);
     if (!appointment) return;
 
-    const draft = drafts[id] || {};
+    draft = draft || {};
+    console.log("[submitAppointment] id=%s draft.amount=%j -> amount=%j", id, draft.amount, Number(draft.amount) || 0);
 
     const res = await fetch("/api/submit", {
       method: "POST",
@@ -38,7 +41,7 @@ const useStore = create((set, get) => ({
         mobileNumber: appointment.mobileNumber,
         email: appointment.email,
         timePaid: draft.timePaid || "",
-        amount: draft.amount || 0,
+        amount: Number(draft.amount) || 0,
         tags: sortTags(draft.tags || []),
         customTags: draft.customTags || [],
       }),
